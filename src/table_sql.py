@@ -1,4 +1,4 @@
-import csv
+from columns import read_columns
 
 # Map python types to SQL types
 type_map = {
@@ -22,14 +22,13 @@ CREATE SCHEMA {schema};
 """
     result += "CREATE TABLE observations.raw (\n"
     result += "    id SERIAL PRIMARY KEY,  -- Identifier\n"
-    with open(col_file, "r") as f:
-        lines = csv.DictReader(f)
-        for col in lines:
-            result += col_fmt.format(
-                col["name"],
-                type_map[col["type"]],
-                " UNIQUE" if col["name"] in unique_columns else "",
-            )
+    lines = read_columns(col_file)
+    for col in lines:
+        result += col_fmt.format(
+            col["name"],
+            type_map[col["type"]],
+            " UNIQUE" if col["name"] in unique_columns else "",
+        )
     result = result[:-2]  # remove comma of the last column item
     result += "\n);\n\n"
     result += """

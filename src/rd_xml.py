@@ -2,7 +2,8 @@
 from xml.etree.ElementTree import tostring, Element, SubElement, Comment
 from xml.dom import minidom
 from collections import namedtuple
-import csv
+
+from columns import read_columns
 
 
 MetaElem = namedtuple("MetaElem", "name text")
@@ -99,10 +100,9 @@ def make_table_element(parent, table_id, columns_file):
     col.text = "Database identifier of the file."
 
     # Read and create the other columns
-    with open(columns_file, "r") as f:
-        columns = csv.DictReader(f)
-        for col in columns:
-            to_column(table, col)
+    columns = read_columns(columns_file)
+    for col in columns:
+        to_column(table, col)
 
 
 def to_column(parent, dictionary):
