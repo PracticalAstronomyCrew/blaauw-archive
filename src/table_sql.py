@@ -33,8 +33,8 @@ CREATE SCHEMA {schema};
     result = result[:-2]  # remove comma of the last column item
     result += "\n);\n\n"
     result += """
-GRANT ALL PRIVILEGES ON SCHEMA {schema} TO gavoadmin WITH GRANT OPTION;
-GRANT SELECT ON {schema}.{table} TO gavoadmin WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON SCHEMA {schema} TO feed WITH GRANT OPTION;
+GRANT SELECT ON {schema}.{table} TO feed WITH GRANT OPTION;
 """
 
     return result.format(schema=schema, table=table)

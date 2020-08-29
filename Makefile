@@ -16,7 +16,7 @@ input_dir=$(base_dir)/inputs/$(schema_name)
 web_dir=$(base_dir)/web
 
 ## Commands
-reload: generate reload-rd
+reload: generate reload-rd publish-rd
 
 # Static resources (images, templates etc.)
 move-logo:
@@ -34,6 +34,9 @@ reload-rd:
 	pwd
 	cp $(rd_file) $(input_dir)/q.rd
 	dachs imp -m $(schema_name)/q.rd
+
+publish-rd:
+	dachs pub $(schema_name)/q.rd
 
 create-db:
 	# WARNING: Removes all data in the db!!!!
