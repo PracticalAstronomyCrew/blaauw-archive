@@ -8,6 +8,8 @@ table_file=$(target_dir)/table.sql
 
 gen_file=src/generate.py  
 
+data_dir=../data
+
 # Gavo directories
 schema_name=observations
 base_dir=/var/gavo
@@ -38,9 +40,14 @@ reload-rd:
 publish-rd:
 	dachs pub $(schema_name)/q.rd
 
+# Database stuff
 create-db:
 	# WARNING: Removes all data in the db!!!!
 	psql dachs -f $(table_file)
+
+insert:
+	python3 src/insert.py $(data_dir)/headers.txt $(col_list)
+	#python3 src/insert.py $(data_dir)/processed-headers.txt $(col_list)
 
 restart:
 	sudo systemctl restart dachs.service

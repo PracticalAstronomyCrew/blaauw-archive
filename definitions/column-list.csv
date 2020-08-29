@@ -1,8 +1,8 @@
 name,py-name,type,unit,ucd,description
-obs_jd,obs-jd,float,d,time.epoch;obs,Observation date and time as Julian Date (JD). Derived from 'DATE_OBS'.
+obs_jd,obs_jd,float,d,time.epoch;obs,Observation date and time as Julian Date (JD). Derived from 'DATE_OBS'.
 ra,ra,float,deg,pos.eq.ra;meta.main,Right Ascention (degrees) coordinate of where the telescope is pointed. Derived from 'OBJCTRA'.
 dec,dec,float,deg,pos.eq.dec;meta.main,Declination (degrees) coordinate of where the telescope is pointed. Derived from 'OBJCTDEC'.
-filename,filename,str,,meta.id;meta.file,Absolute path to the corresponding fits file on the Vega data server.
+filename,FILENAME,str,,meta.id;meta.file,Absolute path to the corresponding fits file on the Vega data server.
 IMAGETYP,IMAGETYP,str,,meta.code;obs,The type of image; e.g. 'Light Frame' | 'Dark Frame' | 'Bias Frame' or 'Flat Frame'.
 DATE_OBS,DATE-OBS,str,,,Datetime string of the moment the observation was taken (in UTC). See 'obs_jd' column for the same time in Julian Days.
 OBJECT,OBJECT,str,,,Name of the (intended) object being observed.
@@ -11,6 +11,7 @@ OBJCTDEC,OBJCTDEC,str,,,Estimated center declination coordinate of the image.
 FILTER,FILTER,str,,meta.code;instr.filter,The name of the filter used in the Observation
 EXPSTATE,EXPSTATE,int,,,Exposure time of the observation (in seconds)
 EXPOSURE,EXPOSURE,float,,,Exposure time of the observation (in seconds)
+file_id,file_id,str,,,Combination of the folder date and file name to compare raw and processed files.
 AIRMASS,AIRMASS,float,,,
 SIMPLE,SIMPLE,bool,,,
 BITPIX,BITPIX,int,,,

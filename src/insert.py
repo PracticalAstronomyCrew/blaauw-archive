@@ -1,4 +1,6 @@
 import sys
+import csv
+import os
 
 from pickle import load
 from pprint import pprint
@@ -8,88 +10,10 @@ from astropy.time import Time
 from astropy.coordinates import SkyCoord
 from astropy import units as u
 
-from postgres import Postgres, UniqueViolation
-from columns import read_columns
-import csv
+from postgres import Postgres
+from psycopg2.errors import UniqueViolation
 
-# Set of all the dictionary keys, which are entries in the database.
-# TODO read from the .csv file
-# DB_HEADERS = {
-#    "SIMPLE",
-#    "BITPIX",
-#    "NAXIS",
-#    "NAXIS1",
-#    "NAXIS2",
-#    "BSCALE",
-#    "BZERO",
-#    "BIAS",
-#    "FOCALLEN",
-#    "APTAREA",
-#    "APTDIA",
-#    "DATE-OBS",
-#    "TIME-OBS",
-#    "SWCREATE",
-#    "SET-TEMP",
-#    "COLORCCD",
-#    "DISPCOLR",
-#    "IMAGETYP",
-#    "CCDSFPT",
-#    "XORGSUBF",
-#    "YORGSUBF",
-#    "CCDSUBFL",
-#    "CCDSUBFT",
-#    "XBINNING",
-#    "CCDXBIN",
-#    "YBINNING",
-#    "CCDYBIN",
-#    "EXPSTATE",
-#    "CCD-TEMP",
-#    "TEMPERAT",
-#    "OBJECT",
-#    "OBJCTRA",
-#    "OBJCTDEC",
-#    "TELTKRA",
-#    "TELTKDEC",
-#    "CENTAZ",
-#    "CENTALT",
-#    "TELHA",
-#    "LST",
-#    "AIRMASS",
-#    "SITELAT",
-#    "SITELONG",
-#    "INSTRUME",
-#    "EGAIN",
-#    "E-GAIN",
-#    "XPIXSZ",
-#    "YPIXSZ",
-#    "SBIGIMG",
-#    "USER_2",
-#    "DATAMAX",
-#    "SBSTDVER",
-#    "FILTER",
-#    "EXPTIME",
-#    "EXPOSURE",
-#    "CBLACK",
-#    "CWHITE",
-#    "FILENAME",
-#    "obs_jd",
-#    "ra",
-#    "dec",
-#    "CTYPE1",
-#    "CTYPE2",
-#    "EQUINOX",
-#    "CRVAL1",
-#    "CRVAL2",
-#    "CRPIX1",
-#    "CRPIX2",
-#    "CUNIT1",
-#    "CUNIT2",
-#    "CD1_1",
-#    "CD1_2",
-#    "CD2_1",
-#    "CD2_2",
-#    "PLATE_SCALE",
-# }
+from columns import read_columns
 
 
 def prep_sql_statement(columns):
@@ -125,6 +49,7 @@ def main(filename: str, col_files: str):
     # calculate JD
     # calculate RA DEC
     for head in headers:
+        add_file_id(head)
         add_jd(head)
         add_pos(head)
         # TODO: process PLATE_SCALE here, not in the crawler
@@ -140,7 +65,7 @@ def main(filename: str, col_files: str):
     sql_stmt = prep_sql_statement(columns)
 
     if CONNECT_DB:
-        db_url = "dbname=gavo"
+        db_url = "dbname=dachs"
         db = Postgres(db_url)
 
         with db.get_cursor() as curs:
@@ -152,6 +77,7 @@ def main(filename: str, col_files: str):
                         sql_stmt, parameters=defaultdict(lambda: None, header)
                     )
                 except UniqueViolation as e:
+                    # Handle the failed connection error as well
                     print("UniqueViolation:", e)
                     print("Header probably already in the database.")
                     print(
@@ -159,6 +85,14 @@ def main(filename: str, col_files: str):
                     )
                     # TODO: Add an update query here
 
+def add_file_id(head: dict):
+    if 'FILENAME' in head:
+        fn = head['FILENAME']
+        splitted = fn.split('/')
+        if 'blaauwastrom' in fn:
+            head['file_id'] = splitted[7] + '/' + splitted[8]
+        else:
+            head['file_id'] = splitted[7] + '/' + splitted[10]
 
 def add_jd(head: dict):
     """

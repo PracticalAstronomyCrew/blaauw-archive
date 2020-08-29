@@ -8,7 +8,7 @@ type_map = {
     "str": "TEXT",
 }
 
-unique_columns = {"filename", "DATE_OBS"}
+unique_columns = {"filename", "file_id"}
 col_fmt = "    {0} {1}{2},\n"
 
 

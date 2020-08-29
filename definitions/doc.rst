@@ -1,4 +1,4 @@
-For some comprehensive guides on how to use ADQL look at: http://stensipma.com/__system__/adql/query/info.
+For some comprehensive guides on how to use ADQL look at: http://vo.astro.rug.nl/__system__/adql/query/info.
 
 Some example queries (with what they mean) 
 ==========================================
