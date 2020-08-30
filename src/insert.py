@@ -16,7 +16,7 @@ from psycopg2.errors import UniqueViolation
 from columns import read_columns
 
 
-def make_unique_statement(header: dict, columns):
+def make_update_statement(header: dict, columns: list) -> str:
     keys = (col for col in columns if col["py-name"] in header)
     set_data = ", ".join(
         f"{col['name']} = {header[col['py-name']]}" for col in keys
@@ -26,7 +26,7 @@ def make_unique_statement(header: dict, columns):
     return update_stmt.format(set_data, header["file_id"])
 
 
-def prep_sql_statement(columns):
+def prep_sql_statement(columns: list) -> str:
     # make the sql insert statement
     colnames = ", ".join(col["name"] for col in columns)
     colnames = "(" + colnames + ")"
@@ -77,9 +77,10 @@ def main(filename: str, col_files: str):
     if CONNECT_DB:
         db_url = "dbname=dachs"
         db = Postgres(db_url)
-
-        with db.get_cursor() as curs:
-            for header in headers:
+        uprocessed = []
+        for header in headers:
+            # Insert new headers if not yet in the database
+            with db.get_cursor() as curs:
                 # convert the header to a defaultdict which gives None if the
                 # key is not present.
                 try:
@@ -93,10 +94,20 @@ def main(filename: str, col_files: str):
                     print(
                         f'skipping header {header.get("FILENAME", "NA")} ...'
                     )
-                    # TODO: Add an update query here
+                    uprocessed.append(header)
+        for header in uprocessed:
+            # Update already existing headers
+            with db.get_cursor() as curs:
+                update_stmt = make_update_statement(header, columns)
+                print(update_stmt)
+                try:
+                    curs.run(update_stmt)
+                except Exception as e:
+                    print("Exception in updating,", e)
+                    print("Happened with header of file:", header["FILENAME"])
 
 
-def add_file_id(head: dict):
+def add_file_id(head: dict) -> None:
     if "FILENAME" in head:
         fn = head["FILENAME"]
         splitted = fn.split("/")
@@ -106,7 +117,7 @@ def add_file_id(head: dict):
             head["file_id"] = splitted[7] + "/" + splitted[10]
 
 
-def add_jd(head: dict):
+def add_jd(head: dict) -> None:
     """
     add_jd creates a new item 'obs_jd' in head containing the Observation Date
     in Julian Days.  'obs_jd' is derived from 'DATE-OBS' and only adds it if
@@ -117,7 +128,7 @@ def add_jd(head: dict):
         head["obs_jd"] = time.jd
 
 
-def add_pos(head: dict):
+def add_pos(head: dict) -> None:
     """
     add_pos creates two new entries 'ra' and 'dec' which are degree versions of
     the 'OBJCTRA' and 'OBJCTDEC' entries. Only creates the now entries of these
