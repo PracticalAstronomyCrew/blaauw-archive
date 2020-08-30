@@ -19,11 +19,11 @@ from columns import read_columns
 def make_update_statement(header: dict, columns: list) -> str:
     keys = (col for col in columns if col["py-name"] in header)
     set_data = ", ".join(
-        f"{col['name']} = {header[col['py-name']]}" for col in keys
+        f"{col['name']} = %s({col['py-name']})s" for col in keys
     )
 
-    update_stmt = "UPDATE observations.raw SET {} WHERE file_id == {}"
-    return update_stmt.format(set_data, header["file_id"])
+    update_stmt = "UPDATE observations.raw SET {} WHERE file_id == %(file_id)s"
+    return update_stmt.format(set_data)
 
 
 def prep_sql_statement(columns: list) -> str:
@@ -101,7 +101,7 @@ def main(filename: str, col_files: str):
                 update_stmt = make_update_statement(header, columns)
                 print(update_stmt)
                 try:
-                    curs.run(update_stmt)
+                    curs.run(update_stmt, parameters=header)
                 except Exception as e:
                     print("Exception in updating,", e)
                     print("Happened with header of file:", header["FILENAME"])
