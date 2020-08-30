@@ -19,10 +19,10 @@ from columns import read_columns
 def make_update_statement(header: dict, columns: list) -> str:
     keys = (col for col in columns if col["py-name"] in header)
     set_data = ", ".join(
-        f"{col['name']} = %s({col['py-name']})s" for col in keys
+        f"{col['name']} = %({col['py-name']})s" for col in keys
     )
 
-    update_stmt = "UPDATE observations.raw SET {} WHERE file_id == %(file_id)s"
+    update_stmt = "UPDATE observations.raw SET {} WHERE file_id = %(file_id)s"
     return update_stmt.format(set_data)
 
 
