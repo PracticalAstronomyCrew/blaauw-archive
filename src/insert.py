@@ -16,6 +16,16 @@ from psycopg2.errors import UniqueViolation
 from columns import read_columns
 
 
+def make_unique_statement(header: dict, columns):
+    keys = (col for col in columns if col["py-name"] in header)
+    set_data = ", ".join(
+        f"{col['name']} = {header[col['py-name']]}" for col in keys
+    )
+
+    update_stmt = "UPDATE observations.raw SET {} WHERE file_id == {}"
+    return update_stmt.format(set_data, header["file_id"])
+
+
 def prep_sql_statement(columns):
     # make the sql insert statement
     colnames = ", ".join(col["name"] for col in columns)
@@ -85,14 +95,16 @@ def main(filename: str, col_files: str):
                     )
                     # TODO: Add an update query here
 
+
 def add_file_id(head: dict):
-    if 'FILENAME' in head:
-        fn = head['FILENAME']
-        splitted = fn.split('/')
-        if 'blaauwastrom' in fn:
-            head['file_id'] = splitted[7] + '/' + splitted[8]
+    if "FILENAME" in head:
+        fn = head["FILENAME"]
+        splitted = fn.split("/")
+        if "blaauwastrom" in fn:
+            head["file_id"] = splitted[7] + "/" + splitted[8]
         else:
-            head['file_id'] = splitted[7] + '/' + splitted[10]
+            head["file_id"] = splitted[7] + "/" + splitted[10]
+
 
 def add_jd(head: dict):
     """
