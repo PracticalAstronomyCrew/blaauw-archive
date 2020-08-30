@@ -41,13 +41,15 @@ publish-rd:
 	dachs pub $(schema_name)/q.rd
 
 # Database stuff
+reload-db: create-db insert
+
 create-db:
 	# WARNING: Removes all data in the db!!!!
 	psql dachs -f $(table_file)
 
 insert:
-	python3 src/insert.py $(data_dir)/headers.txt $(col_list)
-	#python3 src/insert.py $(data_dir)/processed-headers.txt $(col_list)
+	python3 src/insert.py $(data_dir)/headers.txt $(col_list) &> insert-headers.log
+	python3 src/insert.py $(data_dir)/processed-headers.txt $(col_list) &> insert-processed-headers.log
 
 restart:
 	sudo systemctl restart dachs.service
