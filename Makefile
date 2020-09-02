@@ -48,8 +48,8 @@ create-db:
 	psql dachs -f $(table_file)
 
 insert:
-	python3 src/insert.py $(data_dir)/headers.txt $(col_list) &> insert-headers.log
-	python3 src/insert.py $(data_dir)/processed-headers.txt $(col_list) &> insert-processed-headers.log
+	python3 src/insert.py $(data_dir)/headers.txt $(col_list) &> logs/$(date +%Y%m%d-%H%M%S)-headers.log
+	python3 src/insert.py $(data_dir)/processed-headers.txt $(col_list) &> logs/$(date +%Y%m%d-%H%M%S)-processed-headers.log
 
 restart:
 	sudo systemctl restart dachs.service

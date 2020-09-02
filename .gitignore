@@ -136,3 +136,4 @@ dmypy.json
 
 # Location for generated files
 generated
+logs
