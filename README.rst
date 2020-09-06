@@ -28,7 +28,7 @@ description to columns in `this CSV File`_ or add something to the
 
 .. _`this CSV File`: ./definitions/column-list.csv
 .. _`description of the raw data table`: ./definitions/doc.rst
-.. _`Notebook in the examples directory`: ./example
+.. _`Notebook in the examples directory`: ./example/TAPQueries.ipynb 
 .. _`Basic introduction to the Raw Observations table`: http://vo.astro.rug.nl/browse/observations/q
 .. _`vo.astro.rug.nl`: http://vo.astro.rug.nl
 .. _`http://vo.astro.rug.nl/tap`: http://vo.astro.rug.nl/tap
