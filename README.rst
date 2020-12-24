@@ -8,7 +8,7 @@ The Blaauw Archives (currently in development) can be found at:
 
 And a tap interface is available at:
 
-`http://vo.astro.rug.nl/tap`_
+`https://vo.astro.rug.nl/tap`_
 
 Usage
 -----
