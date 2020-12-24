@@ -118,11 +118,14 @@ def to_column(parent, dictionary):
         unit=d["unit"],
         ucd=d["ucd"],
     )
+    
 
     description = d["description"]
     if len(description) < 1:
         description = "No Description (TODO)"
-    col.text = description
+
+    descr = SubElement(col, "description")
+    descr.text = description
 
 
 def prettify(elem):
