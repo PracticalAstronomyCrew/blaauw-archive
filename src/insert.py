@@ -41,7 +41,7 @@ def prep_sql_statement(columns: list) -> str:
 
 
 # Toggle to turn on/off
-CONNECT_DB = True
+CONNECT_DB = False
 
 
 def main(filename: str, col_files: str):
@@ -62,15 +62,19 @@ def main(filename: str, col_files: str):
         add_file_id(head)
         add_jd(head)
         add_pos(head)
-        # TODO: process PLATE_SCALE here, not in the crawler
 
     # check if any of the keys in the dict are not used in the database
     used_headers = set(col["py-name"] for col in columns)
+    new_headers = {}
     for head in headers:
         unused = head.keys() - used_headers
         if len(unused):
             name_str = ". File: " + head.get("FILENAME", "")
             print(f"[Warning] - Unused FITS headers{name_str} {unused}")
+            # TODO: add new column;
+            # https://www.postgresql.org/docs/13/sql-altertable.html
+        new_headers |= {(key, type(head[key])) for key in unused}
+    pprint("New Headers Found: ", new_headers)
 
     sql_stmt = prep_sql_statement(columns)
 
@@ -79,7 +83,7 @@ def main(filename: str, col_files: str):
         db = Postgres(db_url)
         uprocessed = []
 
-        print('Inserting new headers')
+        print("Inserting new headers")
         for header in headers:
             # Insert new headers if not yet in the database
             with db.get_cursor() as curs:
@@ -91,11 +95,13 @@ def main(filename: str, col_files: str):
                     )
                 except UniqueViolation as e:
                     # Handle the failed connection error as well
-                    print("UniqueViolation. Header probably already in the database.")
+                    print(
+                        "UniqueViolation. Header probably already in the database."
+                    )
                     print(f"Updating header of {header['FILENAME']} later")
                     uprocessed.append(header)
 
-        print('Updating already existing headers')
+        print("Updating already existing headers")
         for header in uprocessed:
             # Update already existing headers
             with db.get_cursor() as curs:
