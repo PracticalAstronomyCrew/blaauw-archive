@@ -17,6 +17,8 @@ base_dir=/var/gavo
 input_dir=$(base_dir)/inputs/$(schema_name)
 web_dir=$(base_dir)/web
 
+now := $(shell date +%Y%m%d-%H%M%S)
+
 ## Commands
 reload: generate reload-rd publish-rd
 
@@ -48,8 +50,8 @@ create-db:
 	psql dachs -f $(table_file)
 
 insert:
-	python3 src/insert.py $(data_dir)/headers.txt $(col_list) &> logs/$(date +%Y%m%d-%H%M%S)-headers.log
-	python3 src/insert.py $(data_dir)/processed-headers.txt $(col_list) &> logs/$(date +%Y%m%d-%H%M%S)-processed-headers.log
+	python3 src/insert.py $(data_dir)/headers.txt $(col_list) &> logs/$(now)-headers.log
+	python3 src/insert.py $(data_dir)/processed-headers.txt $(col_list) &> logs/$(now)-processed-headers.log
 
 restart:
 	sudo systemctl restart dachs.service

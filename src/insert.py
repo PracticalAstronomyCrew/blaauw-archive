@@ -14,6 +14,12 @@ from postgres import Postgres
 from psycopg2.errors import UniqueViolation
 
 from columns import read_columns
+from table_sql import type_map
+
+# table name, colname, type
+add_col_fmt = "ALTER TABLE {} ADD COLUMN {} {};"
+csv_fmt = "{0},{0},{1},,,"
+# header, py header, type, ....
 
 
 def make_update_statement(header: dict, columns: list) -> str:
@@ -41,7 +47,7 @@ def prep_sql_statement(columns: list) -> str:
 
 
 # Toggle to turn on/off
-CONNECT_DB = False
+CONNECT_DB = True
 
 
 def main(filename: str, col_files: str):
@@ -65,7 +71,8 @@ def main(filename: str, col_files: str):
 
     # check if any of the keys in the dict are not used in the database
     used_headers = set(col["py-name"] for col in columns)
-    new_headers = {}
+    new_headers = set()
+    update_later = []
     for head in headers:
         unused = head.keys() - used_headers
         if len(unused):
@@ -74,7 +81,21 @@ def main(filename: str, col_files: str):
             # TODO: add new column;
             # https://www.postgresql.org/docs/13/sql-altertable.html
         new_headers |= {(key, type(head[key])) for key in unused}
-    pprint("New Headers Found: ", new_headers)
+        update_later.append(head)
+        
+    # TODO: add check verifying no duplicate keys are in here
+    # TODO: update the column_list.csv file with the new headers
+    # TODO: trigger update for DaCHS (or maybe next step in the CRON job)
+    print("New Headers Found: ", new_headers)
+    print("--- start column statements ---")
+    for key, typ in new_headers:
+        print(add_col_fmt.format("observations.raw", key, type_map[typ.__name__]))
+    print("---- end column statements ----")
+    print("")
+    print("--- start csv statements ---")
+    for key, typ in new_headers:
+        print(csv_fmt.format(key, typ.__name__))
+    print("---- end csv statements ----")
 
     sql_stmt = prep_sql_statement(columns)
 
