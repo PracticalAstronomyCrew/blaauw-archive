@@ -10,9 +10,11 @@ DONE_DIR=$BASE/done
 BLAAUW_DIR=/home/dachsroot/blaauw-archive
 INSERT_FILE=$BLAAUW_DIR/src/insert.py
 COLS=$BLAAUW_DIR/definitions/column-list.csv  # maybe use a different list ?
+LOGS=$BASE/logs
+mkdir -p LOGS
 
 NOW=$(shell date +%Y%m%d-%H%M%S)
-LOGFILE=$BASE/logs/insertion-${NOW}.log
+LOGFILE=$LOGS/insertion-${NOW}.log
 
 logger () {
         echo $1 &>> $LOGFILE
@@ -26,11 +28,11 @@ for file in $(ls $INS_DIR); do
         logger "--------------------------------------------------------------------------------"
         logger "Inserting file: $file"
 
-        python3 $INSERT_FILE $INS_DIR/file $COLS &>> $LOGFILE
+        python3 $INSERT_FILE $INS_DIR/$file $COLS &>> $LOGFILE
         # TODO: Maybe check if the insertion was successful, if not move to another location ??
         logger "Inserting exited with status: $?"
 
-        mv $INS_DIR/file $DONE_DIR/file
+        mv $INS_DIR/file $DONE_DIR/$file
 
         logger "Done with file: $file"
         logger "--------------------------------------------------------------------------------"
