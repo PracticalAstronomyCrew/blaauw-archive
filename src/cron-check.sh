@@ -3,18 +3,22 @@
 BASE=/home/dachsroot/archive
 INS_DIR=$BASE/insert
 DONE_DIR=$BASE/done
+LOGS=$BASE/logs
 
 # If there is nothing to insert, stop immediately
 [[ -z $(ls $INS_DIR) ]] && exit
 
+mkdir -p $INS_DIR
+mkdir -p $DONE_DIR
+mkdir -p $LOGS
+
 BLAAUW_DIR=/home/dachsroot/blaauw-archive
 INSERT_FILE=$BLAAUW_DIR/src/insert.py
 COLS=$BLAAUW_DIR/definitions/column-list.csv  # maybe use a different list ?
-LOGS=$BASE/logs
-mkdir -p LOGS
 
-NOW=$(shell date +%Y%m%d-%H%M%S)
+NOW=$(date +%Y%m%d-%H%M%S)
 LOGFILE=$LOGS/insertion-${NOW}.log
+touch $LOGFILE
 
 logger () {
         echo $1 &>> $LOGFILE
@@ -28,11 +32,11 @@ for file in $(ls $INS_DIR); do
         logger "--------------------------------------------------------------------------------"
         logger "Inserting file: $file"
 
-        python3 $INSERT_FILE $INS_DIR/$file $COLS &>> $LOGFILE
+        #python3 $INSERT_FILE $INS_DIR/$file $COLS &>> $LOGFILE
         # TODO: Maybe check if the insertion was successful, if not move to another location ??
         logger "Inserting exited with status: $?"
 
-        mv $INS_DIR/file $DONE_DIR/$file
+        mv $INS_DIR/$file $DONE_DIR/$file
 
         logger "Done with file: $file"
         logger "--------------------------------------------------------------------------------"
@@ -40,5 +44,5 @@ done
 logger "End of insertion..."
 
 logger "Updating DaCHS VO"
-make --directory=$BLAAUW_DIR reload-rd publish-rd &>> $LOGFILE
+#make --directory=$BLAAUW_DIR reload-rd publish-rd &>> $LOGFILE
 logger "Done Updating DaCHS VO"
