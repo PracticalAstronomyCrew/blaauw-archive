@@ -18,7 +18,7 @@ from table_sql import type_map
 
 # table name, colname, type
 add_col_fmt = "ALTER TABLE {} ADD COLUMN {} {};"
-csv_fmt = "{0},{0},{1},,,"
+csv_fmt = "kw_{0},{0},{1},,,"
 # header, py header, type, ....
 
 
@@ -82,14 +82,16 @@ def main(filename: str, col_files: str):
             # https://www.postgresql.org/docs/13/sql-altertable.html
         new_headers |= {(key, type(head[key])) for key in unused}
         update_later.append(head)
-        
+
     # TODO: add check verifying no duplicate keys are in here
     # TODO: update the column_list.csv file with the new headers
     # TODO: trigger update for DaCHS (or maybe next step in the CRON job)
     print("New Headers Found: ", new_headers)
     print("--- start column statements ---")
     for key, typ in new_headers:
-        print(add_col_fmt.format("observations.raw", key, type_map[typ.__name__]))
+        print(
+            add_col_fmt.format("observations.raw", key, type_map[typ.__name__])
+        )
     print("---- end column statements ----")
     print("")
     print("--- start csv statements ---")

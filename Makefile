@@ -1,5 +1,5 @@
 # Files for generate commands
-col_list=definitions/column-list.csv
+col_list=definitions/columns/headers.csv
 doc_file=definitions/doc.rst
 
 target_dir=generated

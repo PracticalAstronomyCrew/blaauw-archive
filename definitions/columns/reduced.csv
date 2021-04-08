@@ -2,5 +2,6 @@ name,py-name,type,unit,ucd,description
 obs_jd,obs_jd,float,d,time.epoch;obs,Observation date and time as Julian Date (JD). Derived from 'DATE_OBS'.
 ra,ra,float,deg,pos.eq.ra;meta.main,Right Ascention (degrees) coordinate of where the telescope is pointed. Derived from 'OBJCTRA'.
 dec,dec,float,deg,pos.eq.dec;meta.main,Declination (degrees) coordinate of where the telescope is pointed. Derived from 'OBJCTDEC'.
-filename,FILENAME,str,,meta.id;meta.file,Absolute path to the corresponding fits file on the Vega data server.
-file_id,file_id,str,,,Combination of the folder date and file name to compare raw and processed files.
+is_guided,is_guided,bool,,,
+done_astrometry,done_astrometry,bool,,,
+telescope,telescope,str,,,

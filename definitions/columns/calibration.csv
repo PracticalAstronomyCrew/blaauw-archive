@@ -1,0 +1,2 @@
+name,py-name,type,unit,ucd,description
+obs_jd,obs_jd,float,d,time.epoch;obs,Observation date and time as Julian Date (JD). Derived from 'DATE_OBS'.

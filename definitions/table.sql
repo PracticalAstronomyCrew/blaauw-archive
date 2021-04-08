@@ -1,5 +1,4 @@
 -- Reset first
--- DROP TABL IF EXISTS observations.raw;
 DROP SCHEMA  IF EXISTS observations CASCADE;
 
 CREATE SCHEMA observations;

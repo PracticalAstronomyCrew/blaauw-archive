@@ -4,7 +4,7 @@ from table_sql import gen_sql
 import sys
 
 # File defaults (w.r.t project root)
-col_file_default = "definitions/column-list.csv"
+col_file_default = "definitions/columns/headers.csv"
 doc_file_default = "definitions/doc.rst"
 
 rd_dest_default = "generated/q.rd"
@@ -26,14 +26,20 @@ def main():
             " [rd destination] [table destination]"
         )
         exit(-1)
+
     # Generate the XML resource description
-    rd_tree = gen_xml("observations", "raw", col_file, doc_file)
-    print("Saving to", rd_dest)
+    rd_tree = gen_xml(
+        "observations",
+        col_file,
+        doc_file,
+    )
+    print("Saving RD to", rd_dest)
     with open(rd_dest, "w") as f:
         f.write(prettify(rd_tree))
 
     # Generate the SQL table definition
-    table_str = gen_sql("observations", "raw", col_file)
+    table_str = gen_sql("observations", col_file)
+    print("Saving SQL tables to", table_dest)
     with open(table_dest, "w") as f:
         f.write(table_str)
 

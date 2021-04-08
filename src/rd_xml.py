@@ -7,6 +7,7 @@ from columns import read_columns
 
 
 MetaElem = namedtuple("MetaElem", "name text")
+
 # TODO: Move to another file, maybe csv as well
 resource_meta_elems = [
     MetaElem("title", "Raw Observation Data"),
@@ -17,7 +18,7 @@ resource_meta_elems = [
         "the raw observations made in the Blaauw Observatory. It is "
         "currently in heavy development!",
     ),
-    MetaElem("creator", "Sten Sipma"),
+    MetaElem("creator", ""),
     MetaElem("subject", "Raw Observations"),
     MetaElem("subject", "Bias Frames"),
     MetaElem("subject", "Dark Frames"),
@@ -44,7 +45,7 @@ type_map = {
 }
 
 
-def gen_xml(schema, table_id, col_file, doc_file):
+def gen_xml(schema, headers_file, doc_file):
     top = Element("resource", schema=schema)
 
     # Insert meta headers
@@ -58,26 +59,76 @@ def gen_xml(schema, table_id, col_file, doc_file):
     longdoc = SubElement(top, "meta", name="_longdoc", format="rst")
     longdoc.text = longdoc_text
 
-    make_table_element(top, table_id=table_id, columns_file=col_file)
+    # Make the tables which include headers
+    table_ids = ["raw", "calibration", "reduced"]
+    for table_id in table_ids:
+        make_table_element(
+            top,
+            table_id=table_id,
+            headers_file=headers_file,
+            specific_columns="definitions/columns/" + table_id + ".csv",
+        )
+
+    # And the table with the relations between raw and reduced files
+    make_composition_table(top)
+
+    # Make the composition table
 
     # Create the cone service element
-    service = SubElement(top, "service", id="cone", allowed="scs.xml,form")
-    for elem in cone_service_meta_elems:
-        meta = SubElement(service, "meta", name=elem.name)
-        meta.text = elem.text
+    # (disabled for the moment)
+    # service = SubElement(top, "service", id="cone", allowed="scs.xml,form")
+    # for elem in cone_service_meta_elems:
+    #     meta = SubElement(service, "meta", name=elem.name)
+    #     meta.text = elem.text
 
-    core = SubElement(service, "scsCore", queriedTable=table_id)
-    SubElement(core, "FEED", source="//scs#coreDescs")
+    # core = SubElement(service, "scsCore", queriedTable=table_id)
+    # SubElement(core, "FEED", source="//scs#coreDescs")
 
     # Create the data element
     data = SubElement(top, "data", id="d", updating="True")
     SubElement(data, "publish", sets="local")
-    SubElement(data, "make", table=table_id)
+    for table_id in table_ids + ["composition"]:
+        SubElement(data, "make", table=table_id)
 
     return top
 
 
-def make_table_element(parent, table_id, columns_file):
+def make_composition_table(parent):
+    table_id = "components"
+
+    # Make the composition table
+    table = SubElement(
+        parent,
+        "table",
+        id=table_id,
+        onDisk="True",
+        adql="True",
+    )
+
+    col = SubElement(
+        table,
+        "column",
+        name="master",
+        type="bigint",
+        unit="",
+        ucd="meta.id",
+        required="True",
+    )
+    col.text = "Reference to the identifier of the calibration"
+
+    col = SubElement(
+        table,
+        "column",
+        name="raw",
+        type="bigint",
+        unit="",
+        ucd="meta.id",
+        required="True",
+    )
+    col.text = "Reference to the identifier of the raw file"
+
+
+def make_table_element(parent, table_id, headers_file, specific_columns=None):
     table = SubElement(
         parent,
         "table",
@@ -99,15 +150,20 @@ def make_table_element(parent, table_id, columns_file):
     )
     col.text = "Database identifier of the file."
 
-    # Read and create the other columns
-    columns = read_columns(columns_file)
+    # Add the columns specific to this table
+    if specific_columns is not None:
+        columns = read_columns(specific_columns)
+        for col in columns:
+            to_column(table, col)
+
+    # Add the general header keywords
+    columns = read_columns(headers_file)
     for col in columns:
         to_column(table, col)
 
 
 def to_column(parent, dictionary):
-    """Convert a dictionary to a SubElement column object attached to `parent`
-    """
+    """Convert a dictionary to a SubElement column object attached to `parent`"""
     d = dictionary
 
     col = SubElement(
@@ -118,7 +174,6 @@ def to_column(parent, dictionary):
         unit=d["unit"],
         ucd=d["ucd"],
     )
-    
 
     description = d["description"]
     if len(description) < 1:
@@ -129,9 +184,7 @@ def to_column(parent, dictionary):
 
 
 def prettify(elem):
-    """Return a pretty-printed XML string for the Element.
-    """
+    """Return a pretty-printed XML string for the Element."""
     rough_string = tostring(elem, "utf-8")
     reparsed = minidom.parseString(rough_string)
     return reparsed.toprettyxml(indent="  ")
-
