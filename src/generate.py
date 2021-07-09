@@ -39,10 +39,14 @@ def main():
         col_file,
         doc_file,
     )
+
     print("Saving RD to", rd_dest)
+    xml_str = prettify(rd_tree)
     with open(rd_dest, "w") as f:
-        f.write(modeline)  # tells Vim that it is reading a xml file
-        f.write(prettify(rd_tree))
+        # Write the xml tree
+        f.write(xml_str)
+        # Add the modeline, to let Vim know that this is an xml file
+        f.write(modeline)
 
     # Generate the SQL table definition
     table_str = gen_sql("observations", col_file)
