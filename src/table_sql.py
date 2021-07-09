@@ -54,11 +54,11 @@ CREATE TABLE observations.components (
 
     """
     result += """
-GRANT ALL PRIVILEGES ON SCHEMA {schema} TO gavoadmin WITH GRANT OPTION;
-GRANT SELECT ON {schema}.raw TO gavoadmin WITH GRANT OPTION;
-GRANT SELECT ON {schema}.reduced TO gavoadmin WITH GRANT OPTION;
-GRANT SELECT ON {schema}.calibration TO gavoadmin WITH GRANT OPTION;
-GRANT SELECT ON {schema}.components TO gavoadmin WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON SCHEMA {schema} TO dachsroot WITH GRANT OPTION;
+GRANT SELECT ON {schema}.raw TO dachsroot WITH GRANT OPTION;
+GRANT SELECT ON {schema}.reduced TO dachsroot WITH GRANT OPTION;
+GRANT SELECT ON {schema}.calibration TO dachsroot WITH GRANT OPTION;
+GRANT SELECT ON {schema}.components TO dachsroot WITH GRANT OPTION;
 """
 
     return result.format(schema=schema)
