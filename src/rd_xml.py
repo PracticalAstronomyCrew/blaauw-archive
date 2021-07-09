@@ -97,7 +97,7 @@ def gen_xml(schema, headers_file, doc_file):
 
 
 def make_composition_table(parent):
-    table_id = "components"
+    table_id = "composition"
 
     # Make the composition table
     table = SubElement(
@@ -106,7 +106,6 @@ def make_composition_table(parent):
         id=table_id,
         onDisk="True",
         adql="True",
-        mixin="//scs#pgs-pos-index",
     )
 
     col = SubElement(
@@ -135,14 +134,24 @@ def make_composition_table(parent):
 
 
 def make_table_element(parent, table_id, headers_file, specific_columns=None):
-    table = SubElement(
-        parent,
-        "table",
-        id=table_id,
-        onDisk="True",
-        adql="True",
-        mixin="//scs#pgs-pos-index",
-    )
+    # Only apply mixin for tables containing coordinates (i.e. not the calibration table)
+    if table_id != "calibration":
+        table = SubElement(
+            parent,
+            "table",
+            id=table_id,
+            onDisk="True",
+            adql="True",
+            mixin="//scs#pgs-pos-index",
+        )
+    else:
+        table = SubElement(
+            parent,
+            "table",
+            id=table_id,
+            onDisk="True",
+            adql="True",
+        )
 
     # Create the identifier column
     col = SubElement(

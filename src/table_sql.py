@@ -46,7 +46,7 @@ CREATE SCHEMA {schema};
     # Make the composition table
     result += """
 
-CREATE TABLE observations.components (
+CREATE TABLE observations.composition (
         master INTEGER, 
         raw INTEGER,
         PRIMARY KEY (master, raw)
@@ -54,11 +54,11 @@ CREATE TABLE observations.components (
 
     """
     result += """
-GRANT ALL PRIVILEGES ON SCHEMA {schema} TO dachsroot WITH GRANT OPTION;
-GRANT SELECT ON {schema}.raw TO dachsroot WITH GRANT OPTION;
-GRANT SELECT ON {schema}.reduced TO dachsroot WITH GRANT OPTION;
-GRANT SELECT ON {schema}.calibration TO dachsroot WITH GRANT OPTION;
-GRANT SELECT ON {schema}.components TO dachsroot WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON SCHEMA {schema} TO feed WITH GRANT OPTION;
+GRANT SELECT ON {schema}.raw TO feed WITH GRANT OPTION;
+GRANT SELECT ON {schema}.reduced TO feed WITH GRANT OPTION;
+GRANT SELECT ON {schema}.calibration TO feed WITH GRANT OPTION;
+GRANT SELECT ON {schema}.composition TO feed WITH GRANT OPTION;
 """
 
     return result.format(schema=schema)
