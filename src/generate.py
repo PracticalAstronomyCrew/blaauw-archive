@@ -10,6 +10,12 @@ doc_file_default = "definitions/doc.rst"
 rd_dest_default = "generated/q.rd"
 table_dest_default = "generated/table.sql"
 
+modeline = """<!--
+vim: ft=xml
+vim:et:sta:sw=2
+-->
+"""
+
 
 def main():
     if len(sys.argv) == 1:
@@ -35,6 +41,7 @@ def main():
     )
     print("Saving RD to", rd_dest)
     with open(rd_dest, "w") as f:
+        f.write(modeline)  # tells Vim that it is reading a xml file
         f.write(prettify(rd_tree))
 
     # Generate the SQL table definition

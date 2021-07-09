@@ -2,6 +2,7 @@
 from xml.etree.ElementTree import tostring, Element, SubElement, Comment
 from xml.dom import minidom
 from collections import namedtuple
+from datetime import date
 
 from columns import read_columns
 
@@ -11,14 +12,16 @@ MetaElem = namedtuple("MetaElem", "name text")
 # TODO: Move to another file, maybe csv as well
 resource_meta_elems = [
     MetaElem("title", "Raw Observation Data"),
-    MetaElem("creationDate", "2020-05-13"),
+    # Maybe creation date is the date of the release? Not the update
+    MetaElem("creationDate", date.today().isoformat()),
     MetaElem(
         "description",
         "This database contains the header information of"
         "the raw observations made in the Blaauw Observatory. It is "
         "currently in heavy development!",
     ),
-    MetaElem("creator", ""),
+    # Add a proper name, not mine ;)
+    MetaElem("creator", "Sten Sipma"),
     MetaElem("subject", "Raw Observations"),
     MetaElem("subject", "Bias Frames"),
     MetaElem("subject", "Dark Frames"),
