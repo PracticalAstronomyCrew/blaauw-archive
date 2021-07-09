@@ -106,6 +106,7 @@ def make_composition_table(parent):
         id=table_id,
         onDisk="True",
         adql="True",
+        mixin="//scs#pgs-pos-index",
     )
 
     col = SubElement(
