@@ -117,7 +117,8 @@ def make_composition_table(parent):
         ucd="meta.id",
         required="True",
     )
-    col.text = "Reference to the identifier of the calibration"
+    descr = SubElement(col, "description")
+    descr.text = "Reference to the identifier of the calibration"
 
     col = SubElement(
         table,
@@ -128,7 +129,8 @@ def make_composition_table(parent):
         ucd="meta.id",
         required="True",
     )
-    col.text = "Reference to the identifier of the raw file"
+    descr = SubElement(col, "description")
+    descr.text = "Reference to the identifier of the raw file"
 
 
 def make_table_element(parent, table_id, headers_file, specific_columns=None):
@@ -151,7 +153,8 @@ def make_table_element(parent, table_id, headers_file, specific_columns=None):
         ucd="meta.id;meta.main",
         required="True",
     )
-    col.text = "Database identifier of the file."
+    descr = SubElement(col, "description")
+    descr.text = "Database identifier of the file."
 
     # Add the columns specific to this table
     if specific_columns is not None:
