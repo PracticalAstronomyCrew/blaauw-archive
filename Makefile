@@ -43,6 +43,7 @@ publish-rd:
 	dachs pub $(schema_name)/q.rd
 
 # Database stuff
+# Use with care!
 reload-db: create-db insert
 
 create-db:

@@ -13,7 +13,7 @@ mkdir -p $DONE_DIR
 mkdir -p $LOGS
 
 BLAAUW_DIR=/home/dachsroot/blaauw-archive
-INSERT_FILE=$BLAAUW_DIR/src/insert.py
+INSERT_SCRIPT=$BLAAUW_DIR/src/insert.py
 COLS=$BLAAUW_DIR/definitions/column-list.csv  # maybe use a different list ?
 
 NOW=$(date +%Y%m%d-%H%M%S)
@@ -32,9 +32,13 @@ for file in $(ls $INS_DIR); do
         logger "--------------------------------------------------------------------------------"
         logger "Inserting file: $file"
 
-        #python3 $INSERT_FILE $INS_DIR/$file $COLS &>> $LOGFILE
+        #python3 $INSERT_SCRIPT $INS_DIR/$file $COLS &>> $LOGFILE
         # TODO: Maybe check if the insertion was successful, if not move to another location ??
-        logger "Inserting exited with status: $?"
+        status=$?
+        logger "Inserting exited with status: $status"
+        if [[ $status ]]; then
+                logger "WARNING, nonzero exit: $status"
+        fi
 
         mv $INS_DIR/$file $DONE_DIR/$file
 
