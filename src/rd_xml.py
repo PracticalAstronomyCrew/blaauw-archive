@@ -31,14 +31,6 @@ resource_meta_elems = [
     MetaElem("type", "Archive"),
 ]
 
-cone_service_meta_elems = [
-    MetaElem(name="title", text="Observations cone search"),
-    MetaElem(name="shortName", text="Obs Cone"),
-    MetaElem(name="testQuery.ra", text="51"),
-    MetaElem(name="testQuery.dec", text="0"),
-    MetaElem(name="testQuery.sr", text="0.01"),
-]
-
 # Map python types to types in the resource descriptor
 type_map = {
     "int": "bigint",
@@ -75,17 +67,24 @@ def gen_xml(schema, headers_file, doc_file):
     # And the table with the relations between raw and reduced files
     make_composition_table(top)
 
-    # Make the composition table
+    # Create the cone service elements
+    # For the "raw" table
+    service = SubElement(top, "service", id="cone", allowed="scs.xml,form")
+    SubElement(
+        service, "meta", name="title", text="Raw Observations Cone Search"
+    )
+    SubElement(service, "meta", name="shortname", text="Cone Raw")
+    core = SubElement(service, "scsCore", queriedTable="raw")
+    SubElement(core, "FEED", source="//scs#coreDescs")
 
-    # Create the cone service element
-    # (disabled for the moment)
-    # service = SubElement(top, "service", id="cone", allowed="scs.xml,form")
-    # for elem in cone_service_meta_elems:
-    #     meta = SubElement(service, "meta", name=elem.name)
-    #     meta.text = elem.text
-
-    # core = SubElement(service, "scsCore", queriedTable=table_id)
-    # SubElement(core, "FEED", source="//scs#coreDescs")
+    # For the "reduced" table
+    service = SubElement(top, "service", id="cone", allowed="scs.xml,form")
+    SubElement(
+        service, "meta", name="title", text="Reduced Observations Cone Search"
+    )
+    SubElement(service, "meta", name="shortname", text="Cone Red")
+    core = SubElement(service, "scsCore", queriedTable="reduced")
+    SubElement(core, "FEED", source="//scs#coreDescs")
 
     # Create the data element
     data = SubElement(top, "data", id="d", updating="True")

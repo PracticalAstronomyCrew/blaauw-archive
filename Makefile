@@ -40,7 +40,7 @@ reload-rd:
 	dachs imp -m $(schema_name)/q.rd
 
 publish-rd:
-	dachs pub $(schema_name)/q.rd
+	dachs pub -m $(schema_name)/q.rd
 
 # Database stuff
 # Use with care!
