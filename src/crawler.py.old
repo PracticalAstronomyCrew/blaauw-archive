@@ -68,45 +68,13 @@ from tqdm import tqdm  # loading bar
 from time import process_time
 from pickle import dump
 
-pipeline_file_types = {"Raw", "Reduced", "Correction"}
-
-
-def search(base: str, type: str) -> list:
-    """
-    base path & the type of image: (Raw, Reduced or Correction)
-    """
-    if type not in pipeline_file_types:
-        raise ValueError(
-            f"Type should be one of {pipeline_file_types}, but was '{type}'"
-        )
-
-    # List all files of this 'type'
-    regex_base = os.path.join(base, "**", type)
-    files_iter = glob(
-        os.path.join(regex_base, "*.fits"), recursive=True
-    ) + glob(os.path.join(regex_base, "*.FIT"), recursive=True)
-
-    return files_iter
-
-
-def split_astrometry(iter) -> tuple[list, list]:
-    astrom_files = filter(
-        lambda f: f.endswith("astrom.fits") or f.endswith("astrom.FIT"),
-        iter,
-    )
-
-    raw_files = filter(
-        lambda f: not f.endswith("astrom.fits")
-        and not f.endswith("astrom.FIT"),
-        iter,
-    )
-    return list(raw_files), list(astrom_files)
-
 
 def main():
-    BASE_DIR = "/net/dataserver3/data/users/noelstorr/blaauwpipe"
+    BASE_DIR = "/net/dataserver3/data/users/noelstorr/blaauwastrom/"
 
-    files_iter = search(BASE_DIR, "Raw")
+    files_iter = glob(
+        os.path.join(BASE_DIR, "**/*.fits"), recursive=True
+    ) + glob(os.path.join(BASE_DIR, "**/*.FIT"), recursive=True)
     # files_iter = files_iter[:10]
 
     start_time = process_time()
