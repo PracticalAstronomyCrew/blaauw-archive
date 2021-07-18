@@ -89,7 +89,24 @@ def search(base: str, type: str) -> list:
     return files_iter
 
 
-def split_astrometry(iter) -> tuple[list, list]:
+def collect(files_iter):
+    start_time = process_time()
+    headers = []
+    errors = []
+
+    for filename in tqdm(files_iter, ncols=79):
+        try:
+            head_dict = header_to_dict(filename)
+            headers.append(head_dict)
+        except Exception as e:
+            errors.append((filename, e))
+
+    end_time = process_time()
+    duration = end_time - start_time
+    return headers, errors, duration
+
+
+def split_astrometry(iter):
     astrom_files = filter(
         lambda f: f.endswith("astrom.fits") or f.endswith("astrom.FIT"),
         iter,
@@ -106,33 +123,31 @@ def split_astrometry(iter) -> tuple[list, list]:
 def main():
     BASE_DIR = "/net/dataserver3/data/users/noelstorr/blaauwpipe"
 
-    files_iter = search(BASE_DIR, "Raw")
-    # files_iter = files_iter[:10]
+    total_time = process_time()
 
-    start_time = process_time()
-    headers = []
-    errors = []
+    for type_name in pipeline_file_types:
+        # Seach for the files & collect into a list
+        files_iter = search(BASE_DIR, type_name)
+        headers, errors, duration = collect(files_iter)
 
-    for filename in tqdm(files_iter, ncols=79):
-        try:
-            head_dict = header_to_dict(filename)
-            headers.append(head_dict)
-        except Exception as e:
-            errors.append((filename, e))
+        # Report
+        print("Took {}s".format(duration))
 
+        print("")
+        print(f"{len(errors)} errors found:")
+        for filename, err in errors:
+            print(filename, "|", err)
+
+        # Save
+        write_name = type_name + "headers.txt"
+        print(f"Writing to {write_name}...")
+        with open(write_name, "wb") as f:
+            dump(headers, f)
+
+    # Report total time
     end_time = process_time()
-    duration = end_time - start_time
-    print("Took {}s".format(duration))
-
-    print("")
-    print(f"{len(errors)} errors found:")
-    for filename, err in errors:
-        print(filename, "|", err)
-
-    write_name = "headers.txt"
-    print(f"Writing to {write_name}...")
-    with open(write_name, "wb") as f:
-        dump(headers, f)
+    total_duration = end_time - total_time
+    print(f"The total process took {total_duration}s")
 
 
 if __name__ == "__main__":
