@@ -89,12 +89,12 @@ def search(base: str, type: str) -> list:
     return files_iter
 
 
-def collect(files_iter):
+def collect(files_iter, progress_desc=""):
     start_time = process_time()
     headers = []
     errors = []
 
-    for filename in tqdm(files_iter, ncols=79):
+    for filename in tqdm(files_iter, ncols=79, desc=progress_desc):
         try:
             head_dict = header_to_dict(filename)
             headers.append(head_dict)
@@ -128,7 +128,9 @@ def main():
     for type_name in pipeline_file_types:
         # Seach for the files & collect into a list
         files_iter = search(BASE_DIR, type_name)
-        headers, errors, duration = collect(files_iter)
+        headers, errors, duration = collect(
+            files_iter, progress_desc=type_name
+        )
 
         # Report
         print("Took {}s".format(duration))
@@ -143,6 +145,7 @@ def main():
         print(f"Writing to {write_name}...")
         with open(write_name, "wb") as f:
             dump(headers, f)
+        print("")
 
     # Report total time
     end_time = process_time()
