@@ -1,2 +1,7 @@
-name,py-name,type,unit,ucd,description
-obs_jd,obs_jd,float,d,time.epoch;obs,Observation date and time as Julian Date (JD). Derived from 'DATE_OBS'.
+name,py-name,type,unit,ucd,description,fk-column,fk-table
+obs_jd,obs_jd,float,d,time.epoch;obs,Observation date and time as Julian Date (JD). Derived from 'DATE_OBS'.,,
+master_bias,master_bias,int,,meta.id,Reference to the master bias used for the creation of the calibration file (indexes the Calibration table),id,calibration
+master_dark,master_dark,int,,meta.id,Reference to the master bias used for the creation of the calibration file (indexes the Calibration table),id,calibration
+master_flat,master_flat,int,,meta.id,Reference to the master bias used for the creation of the calibration file (indexes the Calibration table),id,calibration
+filename,FILENAME,str,,meta.id;meta.file,Absolute path to the corresponding FITS file on the data server.,,
+file_id,file_id,str,,meta.id,Combination of the folder date and file name to compare raw and processed files.,,

@@ -131,6 +131,12 @@ def make_composition_table(parent):
     descr = SubElement(col, "description")
     descr.text = "Reference to the identifier of the raw file"
 
+    # Add the foreign key elements
+    SubElement(
+        table, "foreignKey", dest="id", inTable="calibration", source="master"
+    )
+    SubElement(table, "foreignKey", dest="id", inTable="raw", source="raw")
+
 
 def make_table_element(parent, table_id, headers_file, specific_columns=None):
     # Only apply mixin for tables containing coordinates (i.e. not the calibration table)
@@ -177,7 +183,7 @@ def make_table_element(parent, table_id, headers_file, specific_columns=None):
         to_column(table, col)
 
 
-def to_column(parent, dictionary):
+def to_column(parent, dictionary: dict):
     """Convert a dictionary to a SubElement column object attached to `parent`"""
     d = dictionary
 
@@ -196,6 +202,16 @@ def to_column(parent, dictionary):
 
     descr = SubElement(col, "description")
     descr.text = description
+
+    # The column is also a foreign key
+    if len(d["fk-table"]) > 0 and len(d["fk-column"]) > 0:
+        SubElement(
+            parent,
+            "foreignKey",
+            dest=d["fk-column"],
+            inTable=d["fk-table"],
+            source=d["name"],
+        )
 
 
 def prettify(elem):
