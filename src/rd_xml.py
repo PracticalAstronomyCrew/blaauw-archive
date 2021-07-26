@@ -110,7 +110,7 @@ def make_composition_table(parent):
     col = SubElement(
         table,
         "column",
-        name="master",
+        name="master_id",
         type="bigint",
         unit="",
         ucd="meta.id",
@@ -122,7 +122,7 @@ def make_composition_table(parent):
     col = SubElement(
         table,
         "column",
-        name="raw",
+        name="raw_id",
         type="bigint",
         unit="",
         ucd="meta.id",
@@ -133,9 +133,13 @@ def make_composition_table(parent):
 
     # Add the foreign key elements
     SubElement(
-        table, "foreignKey", dest="id", inTable="calibration", source="master"
+        table,
+        "foreignKey",
+        dest="id",
+        inTable="calibration",
+        source="master_id",
     )
-    SubElement(table, "foreignKey", dest="id", inTable="raw", source="raw")
+    SubElement(table, "foreignKey", dest="id", inTable="raw", source="raw_id")
 
 
 def make_table_element(parent, table_id, headers_file, specific_columns=None):

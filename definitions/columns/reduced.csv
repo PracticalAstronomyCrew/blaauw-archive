@@ -5,7 +5,7 @@ dec,dec,float,deg,pos.eq.dec;meta.main,Declination (degrees) coordinate of where
 master_bias,master_bias,int,,meta.id,Reference to the master bias used for the data reduction (indexes the Calibration table),id,calibration
 master_dark,master_dark,int,,meta.id,Reference to the master dark used for the data reduction (indexes the Calibration table),id,calibration
 master_flat,master_flat,int,,meta.id,Reference to the master flat used for the data reduction (indexes the Calibration table),id,calibration
-raw,raw,int,,meta.id,Reference to the raw (unprocessed) file light file (indexes the raw table),id,raw
+raw_id,raw_id,int,,meta.id,Reference to the raw (unprocessed) file light file (indexes the raw table),id,raw
 is_guided,is_guided,bool,,,,,
 done_astrometry,done_astrometry,bool,,,,,
 telescope,telescope,str,,,,,
