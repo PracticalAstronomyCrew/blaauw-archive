@@ -70,19 +70,23 @@ def gen_xml(schema, headers_file, doc_file):
     # Create the cone service elements
     # For the "raw" table
     service = SubElement(top, "service", id="cone", allowed="scs.xml,form")
-    SubElement(
-        service, "meta", name="title", text="Raw Observations Cone Search"
-    )
-    SubElement(service, "meta", name="shortname", text="Cone Raw")
+
+    serv_meta = SubElement(service, "meta", name="title")
+    serv_meta.text = "Raw Observations Cone Search"
+    serv_meta = SubElement(service, "meta", name="shortname")
+    serv_meta.text = "Cone Raw"
+
     core = SubElement(service, "scsCore", queriedTable="raw")
     SubElement(core, "FEED", source="//scs#coreDescs")
 
     # For the "reduced" table
     service = SubElement(top, "service", id="cone", allowed="scs.xml,form")
-    SubElement(
-        service, "meta", name="title", text="Reduced Observations Cone Search"
-    )
-    SubElement(service, "meta", name="shortname", text="Cone Red")
+
+    serv_meta = SubElement(service, "meta", name="title")
+    serv_meta.text = "Reduced Observations Cone Search"
+    serv_meta = SubElement(service, "meta", name="shortname")
+    serv_meta.text = "Cone Red"
+
     core = SubElement(service, "scsCore", queriedTable="reduced")
     SubElement(core, "FEED", source="//scs#coreDescs")
 
