@@ -92,14 +92,14 @@ def main(filename: str, raw_file: str, head_file: str, CONNECT_DB=False):
             log.info(csv_fmt.format(key, typ.__name__))
         log.info("---- end csv statements ----")
 
-    sql_stmt = prep_sql_statement(columns)
-
     if CONNECT_DB:
         db_url = "dbname=dachs"
         db = Postgres(db_url)
-        uprocessed = []
+        unprocessed = []
 
-        log.info("Inserting new headers")
+        sql_stmt = prep_sql_statement(columns)
+
+        log.info(f"Inserting {len(headers)} new headers")
         for header in headers:
             # Insert new headers if not yet in the database
             with db.get_cursor() as curs:
@@ -110,13 +110,14 @@ def main(filename: str, raw_file: str, head_file: str, CONNECT_DB=False):
                 except UniqueViolation as e:
                     # Handle the failed connection error as well
                     log.info(
-                        "UniqueViolation. Header probably already in the database."
+                        "UniqueViolation. Header probably already in the database. "
+                        f"Updating header of {header['FILENAME']} later"
                     )
-                    log.info(f"Updating header of {header['FILENAME']} later")
-                    uprocessed.append(header)
+                    unprocessed.append(header)
+        log.info("Done")
 
-        log.info("Updating already existing headers")
-        for header in uprocessed:
+        log.info(f"Updating {len(unprocessed)} headers")
+        for header in unprocessed:
             # Update already existing headers
             with db.get_cursor() as curs:
                 update_stmt = make_update_statement(header, columns)
@@ -124,8 +125,10 @@ def main(filename: str, raw_file: str, head_file: str, CONNECT_DB=False):
                     curs.run(update_stmt, parameters=header)
                 except Exception as e:
                     log.exception(
-                        f"Exception in updating, {e}. Happened with file {header['FILENAME']}"
+                        f"Exception in updating, {e}. "
+                        f"Happened with file {header['FILENAME']}"
                     )
+        log.info("Done")
 
 
 def add_file_id(head: dict) -> None:
