@@ -1,5 +1,6 @@
 # Files for generate commands
-col_list=definitions/columns/headers.csv
+col_raw_list=definitions/columns/raw.csv
+col_head_list=definitions/columns/headers.csv
 doc_file=definitions/doc.rst
 
 target_dir=generated
@@ -51,8 +52,8 @@ create-db:
 	psql dachs -f $(table_file)
 
 insert:
-	python3 src/insert.py $(data_dir)/headers.txt $(col_list) &> logs/$(now)-headers.log
-	python3 src/insert.py $(data_dir)/processed-headers.txt $(col_list) &> logs/$(now)-processed-headers.log
+	python3 src/insert.py $(data_dir)/headers.txt --raw $(col_raw_list) --header $(col_head_list) &> logs/$(now)-headers.log
+	python3 src/insert.py $(data_dir)/processed-headers.txt --raw $(col_raw_list) --header $(col_head_list) &> logs/$(now)-processed-headers.log
 
 restart:
 	sudo systemctl restart dachs.service

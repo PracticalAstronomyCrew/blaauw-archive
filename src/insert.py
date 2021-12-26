@@ -1,9 +1,7 @@
-import sys
-import csv
-import os
+import argparse
+import logging as log
 
 from pickle import load
-from pprint import pprint
 from collections import defaultdict
 
 from astropy.time import Time
@@ -13,8 +11,9 @@ from astropy import units as u
 from postgres import Postgres
 from psycopg2.errors import UniqueViolation
 
-from columns import read_columns
+from columns import combine_tables
 from table_sql import type_map
+
 
 # table name, colname, type
 add_col_fmt = "ALTER TABLE {} ADD COLUMN {} {};"
@@ -24,11 +23,10 @@ csv_fmt = "kw_{0},{0},{1},,,"
 
 def make_update_statement(header: dict, columns: list) -> str:
     keys = (col for col in columns if col["py-name"] in header)
-    set_data = ", ".join(
-        f"{col['name']} = %({col['py-name']})s" for col in keys
-    )
+    set_data = ", ".join(f"{col['name']} = %({col['py-name']})s" for col in keys)
 
     update_stmt = "UPDATE observations.raw SET {} WHERE file_id = %(file_id)s"
+    log.debug(f"Update statement is {update_stmt}")
     return update_stmt.format(set_data)
 
 
@@ -40,27 +38,21 @@ def prep_sql_statement(columns: list) -> str:
     insnames = ", ".join(f"%({col['py-name']})s" for col in columns)
     insnames = "(" + insnames + ")"
 
-    insert_stmt = (
-        "INSERT INTO observations.raw " + colnames + " VALUES " + insnames
-    )
+    insert_stmt = "INSERT INTO observations.raw " + colnames + " VALUES " + insnames
+    log.debug(f"Insert statement is {insert_stmt}")
     return insert_stmt
 
 
-# Toggle to turn on/off
-CONNECT_DB = True
+def main(filename: str, raw_file: str, head_file: str, CONNECT_DB=False):
 
-
-def main(filename: str, col_files: str):
-
-    print("Running on file: {}".format(filename))
+    log.info("Running on file: {}".format(filename))
 
     # read headers from pickled file
     with open(filename, "rb") as f:
         headers = load(f)
 
     # read columns from csv file
-    with open(col_files, "r") as f:
-        columns = read_columns(col_files)
+    columns = combine_tables([raw_file, head_file])
 
     # calculate JD
     # calculate RA DEC
@@ -77,7 +69,7 @@ def main(filename: str, col_files: str):
         unused = head.keys() - used_headers
         if len(unused):
             name_str = ". File: " + head.get("FILENAME", "")
-            print(f"[Warning] - Unused FITS headers{name_str} {unused}")
+            log.warn(f"Unused FITS headers{name_str} {unused}")
             # TODO: add new column;
             # https://www.postgresql.org/docs/13/sql-altertable.html
         new_headers |= {(key, type(head[key])) for key in unused}
@@ -86,18 +78,19 @@ def main(filename: str, col_files: str):
     # TODO: add check verifying no duplicate keys are in here
     # TODO: update the column_list.csv file with the new headers
     # TODO: trigger update for DaCHS (or maybe next step in the CRON job)
-    print("New Headers Found: ", new_headers)
-    print("--- start column statements ---")
-    for key, typ in new_headers:
-        print(
-            add_col_fmt.format("observations.raw", key, type_map[typ.__name__])
-        )
-    print("---- end column statements ----")
-    print("")
-    print("--- start csv statements ---")
-    for key, typ in new_headers:
-        print(csv_fmt.format(key, typ.__name__))
-    print("---- end csv statements ----")
+    if len(new_headers) > 0:
+        log.info("New Headers Found: ", new_headers)
+        log.info("--- start column statements ---")
+        for key, typ in new_headers:
+            log.info(
+                add_col_fmt.format("observations.raw", key, type_map[typ.__name__])
+            )
+        log.info("---- end column statements ----")
+        log.info("")
+        log.info("--- start csv statements ---")
+        for key, typ in new_headers:
+            log.info(csv_fmt.format(key, typ.__name__))
+        log.info("---- end csv statements ----")
 
     sql_stmt = prep_sql_statement(columns)
 
@@ -106,25 +99,23 @@ def main(filename: str, col_files: str):
         db = Postgres(db_url)
         uprocessed = []
 
-        print("Inserting new headers")
+        log.info("Inserting new headers")
         for header in headers:
             # Insert new headers if not yet in the database
             with db.get_cursor() as curs:
                 # convert the header to a defaultdict which gives None if the
                 # key is not present.
                 try:
-                    curs.run(
-                        sql_stmt, parameters=defaultdict(lambda: None, header)
-                    )
+                    curs.run(sql_stmt, parameters=defaultdict(lambda: None, header))
                 except UniqueViolation as e:
                     # Handle the failed connection error as well
-                    print(
+                    log.info(
                         "UniqueViolation. Header probably already in the database."
                     )
-                    print(f"Updating header of {header['FILENAME']} later")
+                    log.info(f"Updating header of {header['FILENAME']} later")
                     uprocessed.append(header)
 
-        print("Updating already existing headers")
+        log.info("Updating already existing headers")
         for header in uprocessed:
             # Update already existing headers
             with db.get_cursor() as curs:
@@ -132,8 +123,9 @@ def main(filename: str, col_files: str):
                 try:
                     curs.run(update_stmt, parameters=header)
                 except Exception as e:
-                    print("Exception in updating,", e)
-                    print("Happened with header of file:", header["FILENAME"])
+                    log.exception(
+                        f"Exception in updating, {e}. Happened with file {header['FILENAME']}"
+                    )
 
 
 def add_file_id(head: dict) -> None:
@@ -171,15 +163,24 @@ def add_pos(head: dict) -> None:
     if "CRVAL1" in head and "CRVAL2" in head:
         head["ra"], head["dec"] = head["CRVAL1"], head["CRVAL2"]
     elif "OBJCTRA" in head and "OBJCTDEC" in head:
-        coord = SkyCoord(
-            head["OBJCTRA"], head["OBJCTDEC"], unit=(u.hourangle, u.deg)
-        )
+        coord = SkyCoord(head["OBJCTRA"], head["OBJCTDEC"], unit=(u.hourangle, u.deg))
         head["ra"], head["dec"] = coord.ra.degree, coord.dec.degree
 
 
+def parse() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("file", type=str)
+    parser.add_argument("--raw", type=str)
+    parser.add_argument("--header", type=str)
+    parser.add_argument("--use-db", action="store_true")
+    parser.add_argument("--debug", action="store_true")
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("Usage:")
-        print("$ python3 insert.py [file to insert] [column csv file]")
-        exit(-1)
-    main(*sys.argv[1:])
+    args = parse()
+    if args.debug:
+        log.basicConfig(level=log.DEBUG)
+    else:
+        log.basicConfig(level=log.INFO)
+    main(args.file, args.raw, args.header, CONNECT_DB=args.use_db)
