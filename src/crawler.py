@@ -116,8 +116,9 @@ def combine_cal_sources(dictionary: HeaderDict) -> Optional[tuple[list[str], int
     If KW-SRCN doesnt exist, or is 0 will return None
     """
     try:
-        n = dictionary["KW-SRCN"]
-    except KeyError:
+        # TODO: I think KW-SRCN should be a number, not a string
+        n = int(dictionary["KW-SRCN"])
+    except KeyError or ValueError:
         return None
 
     if n < 1:
