@@ -178,7 +178,9 @@ def main() -> None:
         else:
             date = dt.date.today().strftime("%y%m%d")
 
-        base_directory.joinpath(date).resolve()
+        base_directory = base_directory.joinpath(date).resolve()
+    else:
+        date = "all"
 
     # and look if it exists
     if not base_directory.is_dir():
@@ -197,7 +199,7 @@ def main() -> None:
 
     for ftype, headers in result.items():
         # Save using pickle
-        write_location = output_directory / f"{ftype}-headers.pickle"
+        write_location = output_directory / f"{date}-{ftype.lower()}-headers.pickle"
         print(f"Writing to {write_location}...")
         with open(write_location, "wb") as f:
             pickle.dump(headers, f)
