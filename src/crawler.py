@@ -43,6 +43,16 @@ def header_to_dict(filename: Path) -> HeaderDict:
     if odds is not None:
         final_dict["ODDS"] = odds
 
+    res = combine_cal_sources(head_dict)
+    if res is not None:
+        sources, n = res
+        final_dict["KW-SRC"] = sources
+
+        # Remove the 'old' entries
+        del final_dict[f"KW-SRCN"]
+        for i in range(1, n + 1):
+            del final_dict[f"KW-SRC{i}"]
+
     return final_dict
 
 
@@ -90,6 +100,31 @@ def find_plate_scale(dictionary: HeaderDict) -> Optional[float]:
 
     plate_scale = float(line.split(" ")[1])
     return plate_scale
+
+
+def combine_cal_sources(dictionary: HeaderDict) -> Optional[tuple[list[str], int]]:
+    """
+    Combines the sources of calibration files into a single list of sources:
+
+    KW-SRCN = 3
+    KW-SRC1 = 'path/to/file1'
+    KW-SRC2 = 'path/to/file2'
+    KW-SRC3 = 'path/to/file3'
+
+    into: [ 'path/to/file1', 'path/to/file2', 'path/to/file3' ]
+
+    If KW-SRCN doesnt exist, or is 0 will return None
+    """
+    try:
+        n = dictionary["KW-SRCN"]
+    except KeyError:
+        return None
+
+    if n < 1:
+        return None
+
+    sources = [dictionary[f"KW-SRC{i}"] for i in range(1, n + 1)]
+    return sources, n
 
 
 def search(base: Path, ftype: str) -> list[Path]:
