@@ -8,7 +8,7 @@ from pathlib import Path
 
 from itertools import chain
 from time import process_time
-from typing import Any, Iterable, Optional
+from typing import Any, Iterable, Optional, Dict
 
 
 from astropy.io import fits
@@ -19,7 +19,7 @@ PIPELINE_FILE_TYPES = {"Raw", "Reduced", "Correction"}
 BASE_DIR = "/net/dataserver3/data/users/noelstorr/blaauwpipe"
 FITS_EXTENSIONS = {"FIT", "fit", "FITS", "fits"}
 
-HeaderDict = dict[str, Any]
+HeaderDict = Dict[str, Any]
 
 
 def header_to_dict(filename: Path) -> HeaderDict:
