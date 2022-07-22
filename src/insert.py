@@ -67,7 +67,7 @@ def main(filename: str, raw_file: str, head_file: str, CONNECT_DB=False):
         unused = head.keys() - used_headers
         if len(unused):
             name_str = ". File: " + head.get("FILENAME", "")
-            log.warn(f"Unused FITS headers{name_str} {unused}")
+            log.warning(f"Unused FITS headers{name_str} {unused}")
             # TODO: add new column;
             # https://www.postgresql.org/docs/13/sql-altertable.html
         new_headers |= {(key, type(head[key])) for key in unused}
@@ -94,40 +94,6 @@ def main(filename: str, raw_file: str, head_file: str, CONNECT_DB=False):
         db_url = "dbname=dachs"
         db = Postgres(db_url)
         insert_raw(headers, columns, db)
-
-        # unprocessed = []
-
-        # sql_stmt = prep_sql_statement(columns)
-
-        # log.info(f"Inserting {len(headers)} new headers")
-        # for header in headers:
-        #     # Insert new headers if not yet in the database
-        #     with db.get_cursor() as curs:
-        #         # convert the header to a defaultdict which gives None if the
-        #         # key is not present.
-        #         try:
-        #             curs.run(sql_stmt, parameters=defaultdict(lambda: None, header))
-        #         except UniqueViolation as e:
-        #             # Handle the failed connection error as well
-        #             log.info(
-        #                 "UniqueViolation. Header probably already in the database. "
-        #                 f"Updating header of {header['FILENAME']} later"
-        #             )
-        #             unprocessed.append(header)
-        # log.info("Done")
-
-        # log.info(f"Updating {len(unprocessed)} headers")
-        # for header in unprocessed:
-        #     # Update already existing headers
-        #     with db.get_cursor() as curs:
-        #         update_stmt = make_update_statement(header, columns)
-        #         try:
-        #             curs.run(update_stmt, parameters=header)
-        #         except Exception as e:
-        #             log.exception(
-        #                 f"Exception in updating, {e}. "
-        #                 f"Happened with file {header['FILENAME']}"
-        #             )
         log.info("Done")
 
 

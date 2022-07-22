@@ -1,6 +1,34 @@
+from pathlib import Path
+from typing import Optional
+
 from astropy.time import Time
 from astropy.coordinates import SkyCoord
 from astropy import units as u
+
+
+def path_to_file_id(path: str, strip_astrom: bool = True) -> Optional[str]:
+    """
+    Example paths resolving to the same file_id:
+    /net/vega/data/users/observatory/images/160216/STL-6303E/i/160216_Li_00000157.fits
+    -> 160216/160216_Li_00000157
+    /net/dataserver3/data/users/noelstorr/blaauwastrom/160216/astrom_160216_Li_00000157.fits
+    -> 160216/160216_Li_00000157 (with strip_astrom=True)
+    """
+    p = Path(path)
+
+    stem = p.stem
+    if strip_astrom:
+        stem = stem.strip("astrom_").strip(".astrom")
+
+    file_id = None
+    if "blaauwastrom" in p.parts:
+        file_id = p.parts[7] + "/" + stem
+    elif "observatory" in p.parts:
+        file_id = p.parts[7] + "/" + stem
+    elif "blaauwpipe":
+        file_id = p.parts[7] + "/" + stem
+
+    return file_id
 
 
 def add_file_id(head: dict) -> None:
@@ -11,11 +39,9 @@ def add_file_id(head: dict) -> None:
     """
     if "FILENAME" in head:
         fn = head["FILENAME"]
-        splitted = fn.split("/")
-        if "blaauwastrom" in fn:
-            head["file_id"] = splitted[7] + "/" + splitted[8]
-        else:
-            head["file_id"] = splitted[7] + "/" + splitted[10]
+        file_id = path_to_file_id(fn)
+        if file_id is not None:
+            head["file_id"] = file_id
 
 
 def add_jd(head: dict) -> None:
