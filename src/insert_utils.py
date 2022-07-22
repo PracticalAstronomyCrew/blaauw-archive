@@ -24,7 +24,7 @@ We have:
 def insert_raw(headers: list[dict], columns: list[dict], db: Postgres):
     unprocessed = []
 
-    query = make_insert_query(columns, table_name="raw")
+    query = make_insert_query(columns, table_name="raw").get_sql()
 
     log.info(f"Inserting {len(headers)} new headers...")
     for header in headers:
@@ -45,7 +45,7 @@ def insert_raw(headers: list[dict], columns: list[dict], db: Postgres):
     exceptions = 0
     for header in unprocessed:
         # Depends on what is in the header
-        query = make_update_query(header, columns, table_name="raw")
+        query = make_update_query(header, columns, table_name="raw").get_sql()
         with db.get_cursor() as curs:
             try:
                 curs.run(query, parameters=header)

@@ -33,4 +33,4 @@ if __name__ == "__main__":
 
     q = make_update_query({"FILENAME": 1, "obs_jd": 3}, columns)
 
-    print(q)
+    print(q.get_sql())

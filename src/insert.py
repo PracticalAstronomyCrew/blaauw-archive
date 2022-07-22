@@ -77,7 +77,7 @@ def main(filename: str, raw_file: str, head_file: str, CONNECT_DB=False):
     # TODO: update the column_list.csv file with the new headers
     # TODO: trigger update for DaCHS (or maybe next step in the CRON job)
     if len(new_headers) > 0:
-        log.info("New Headers Found: ", new_headers)
+        log.info("New Headers Found: {}".format(new_headers))
         log.info("--- start column statements ---")
         for key, typ in new_headers:
             log.info(
