@@ -52,8 +52,9 @@ create-db:
 	psql dachs -f $(table_file)
 
 insert:
-	python3 src/insert.py $(data_dir)/headers.txt --raw $(col_raw_list) --header $(col_head_list) --use-db &> logs/$(now)-headers.log
-	python3 src/insert.py $(data_dir)/processed-headers.txt --raw $(col_raw_list) --header $(col_head_list) --use-db &> logs/$(now)-processed-headers.log
+	# python3 src/insert.py $(data_dir)/headers.txt --raw $(col_raw_list) --header $(col_head_list) --use-db &> logs/$(now)-headers.log
+	# python3 src/insert.py $(data_dir)/processed-headers.txt --raw $(col_raw_list) --header $(col_head_list) --use-db &> logs/$(now)-processed-headers.log
+	python3 src/insert.py $(data_dir)/out-2022-04-15/all-raw-headers.pickle --raw $(col_raw_list) --header $(col_head_list) --use-db &> logs/$(now)-processed-headers.log
 
 restart:
 	sudo systemctl restart dachs.service
