@@ -1,5 +1,6 @@
 from __future__ import annotations
-from pypika import Table, Query, Parameter
+from pypika import Table, Parameter
+from pypika import PostgreSQLQuery as Query
 
 
 def make_insert_query(columns: list[dict], table_name="raw") -> Query:
@@ -33,4 +34,4 @@ if __name__ == "__main__":
 
     q = make_update_query({"FILENAME": 1, "obs_jd": 3}, columns)
 
-    print(q.get_sql())
+    print(q.get_sql(quote_char=False))
