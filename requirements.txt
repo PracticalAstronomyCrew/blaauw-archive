@@ -1,0 +1,11 @@
+astropy==5.0
+numpy==1.21.5
+packaging==21.3
+postgres==4.0
+psycopg2-binary==2.9.2
+psycopg2-pool==1.1
+pyerfa==2.0.0.1
+pyparsing==3.0.6
+PyPika==0.48.9
+PyYAML==6.0
+tqdm==4.62.3

@@ -233,6 +233,7 @@ def main() -> None:
 
     result = crawl(base_directory=base_directory)
 
+    # TODO: alternatively, store the entire `result` dict -> copying easier
     for ftype, headers in result.items():
         # Save using pickle
         write_location = output_directory / f"{date}-{ftype.lower()}-headers.pickle"
