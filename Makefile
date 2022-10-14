@@ -7,7 +7,7 @@ target_dir=generated
 rd_file=$(target_dir)/q.rd
 table_file=$(target_dir)/table.sql
 
-gen_file=src/generate.py  
+gen_file=src/generate.py
 
 data_dir=../data
 
@@ -29,9 +29,9 @@ move-logo:
 	cp resources/rug-logo.png  $(web_dir)/nv_static/img/logo_medium.png
 
 # Data resources
-generate: $(gen_file) $(col_list) $(doc_file)
+generate: $(gen_file) $(col_head_list) $(doc_file)
 	mkdir -p $(target_dir)
-	python3 $(gen_file) $(col_list) $(doc_file) $(rd_file) $(table_file)
+	python3 $(gen_file) $(col_head_list) $(doc_file) $(rd_file) $(table_file)
 
 reload-rd:
 	mkdir -p $(input_dir)
