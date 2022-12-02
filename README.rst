@@ -1,7 +1,7 @@
 Blaauw Archive Files
 ====================
 
-This repository contains the files which are used for the Blaauw Archive.  
+This repository contains the files which are used for the Blaauw Archive.
 The Blaauw Archives (currently in development) can be found at:
 
 `vo.astro.rug.nl`_
@@ -29,16 +29,16 @@ where each dict contains the header information of the FITS file.
         - raw file      -> raw
             As before
         - master        -> calibration
-            - Get reference to the raw version (KW-TRAW / KW-PRAW) (maybe get
+            - Get reference to the raw version (BP-TRAW / BP-PRAW) (maybe get
                     the actual database ID)
             - Get reference to the masters used to create it (i.e. a master
-              dark uses a master bias). 
+              dark uses a master bias).
               NOTE:
             - Insert into calibration
-            - Get references to the components of the master (KW-SRCN &
-                    KW-SRC#>)& add entry in the composition table
+            - Get references to the components of the master (BP-SRCN &
+                    BP-SRC#>)& add entry in the composition table
         - reduced light -> reduced
-            - Get reference to the raw version (KW-TRAW / KW-PRAW) (maybe get
+            - Get reference to the raw version (BP-TRAW / BP-PRAW) (maybe get
                     the actual database ID)
             - Get reference to the masters used to create it (i.e. a master
                     dark uses a master bias)
@@ -48,7 +48,7 @@ Usage
 -----
 
 There are multiple locations where you can get some help on how to use the
-service: 
+service:
 
 1. TAP Python interface for this service: `Notebook in the examples directory`_
 2. `Basic introduction to the Raw Observations table`_
@@ -62,7 +62,7 @@ description to columns in `this CSV File`_ or add something to the
 
 .. _`this CSV File`: ./definitions/column-list.csv
 .. _`description of the raw data table`: ./definitions/doc.rst
-.. _`Notebook in the examples directory`: ./example/TAPQueries.ipynb 
+.. _`Notebook in the examples directory`: ./example/TAPQueries.ipynb
 .. _`Basic introduction to the Raw Observations table`: http://vo.astro.rug.nl/browse/observations/q
 .. _`vo.astro.rug.nl`: http://vo.astro.rug.nl
 .. _`http://vo.astro.rug.nl/tap`: http://vo.astro.rug.nl/tap

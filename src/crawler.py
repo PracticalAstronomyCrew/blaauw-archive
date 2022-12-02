@@ -46,12 +46,12 @@ def header_to_dict(filename: Path) -> HeaderDict:
     res = combine_cal_sources(head_dict)
     if res is not None:
         sources, n = res
-        final_dict["KW-SRC"] = sources
+        final_dict["BP-SRC"] = sources
 
         # Remove the 'old' entries
-        del final_dict[f"KW-SRCN"]
+        del final_dict[f"BP-SRCN"]
         for i in range(1, n + 1):
-            del final_dict[f"KW-SRC{i}"]
+            del final_dict[f"BP-SRC{i}"]
 
     return final_dict
 
@@ -106,25 +106,25 @@ def combine_cal_sources(dictionary: HeaderDict) -> Optional[tuple[list[str], int
     """
     Combines the sources of calibration files into a single list of sources:
 
-    KW-SRCN = 3
-    KW-SRC1 = 'path/to/file1'
-    KW-SRC2 = 'path/to/file2'
-    KW-SRC3 = 'path/to/file3'
+    BP-SRCN = 3
+    BP-SRC1 = 'path/to/file1'
+    BP-SRC2 = 'path/to/file2'
+    BP-SRC3 = 'path/to/file3'
 
     into: [ 'path/to/file1', 'path/to/file2', 'path/to/file3' ]
 
-    If KW-SRCN doesnt exist, or is 0 will return None
+    If BP-SRCN doesnt exist, or is 0 will return None
     """
     try:
-        # TODO: I think KW-SRCN should be a number, not a string
-        n = int(dictionary["KW-SRCN"])
+        # TODO: I think BP-SRCN should be a number, not a string
+        n = int(dictionary["BP-SRCN"])
     except KeyError or ValueError:
         return None
 
     if n < 1:
         return None
 
-    sources = [dictionary[f"KW-SRC{i}"] for i in range(1, n + 1)]
+    sources = [dictionary[f"BP-SRC{i}"] for i in range(1, n + 1)]
     return sources, n
 
 
