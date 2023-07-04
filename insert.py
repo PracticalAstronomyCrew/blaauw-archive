@@ -1,6 +1,7 @@
 import pickle
 from sys import argv
 
+from pathlib import Path
 from astropy.time import Time
 from sqlalchemy import create_engine, select, text
 from sqlalchemy.orm import Session
@@ -10,7 +11,8 @@ from blaauw.core import models, transformers
 def create_observation(header: dict):
     # Assume utc
     date_str = header["DATE-OBS"]
-    date = Time(date_str, format="fits")
+    # maybe format="isot" ?
+    date = Time(date_str, format="fits", scale="utc")
 
     imtyp = header.get("IMAGETYP", None)
     filter = header.get("FILTER", None)
@@ -18,19 +20,38 @@ def create_observation(header: dict):
     xbin = header["XBINNING"]
     ybin = header["YBINNING"]
     binning = xbin if xbin == ybin else None
+    filename = Path(header["FILENAME"])
+    telescope = models.Telescope.from_path(filename)
+    file_id = transformers.path_to_file_id(filename)
+
+    ra, dec = transformers.get_equitorial(header)
+    alt, az = transformers.get_horizontal(header)
+    # Maybe: if alt-az not available, but ra & dec are. Calculate them ?
+    # Same for airmass
+
+    exposure_time = header.get("EXPTIME", None)
+    if exposure_time is None:
+        exposure_time = header.get("EXPOSURE", None)
 
     obs = models.Observation(
             filename=header["FILENAME"],
+            file_id=file_id,
             date = date.to_datetime(),
             date_mjd = date.mjd,
+
+            ra = ra,
+            dec = dec,
+            alt = alt,
+            az = az,
+            airmass = header.get("AIRMASS", None),
 
             image_type = transformers.imtyp_to_enum(imtyp, filter=filter, obj=obj),
             filter = filter,
             target_object = obj,
-            exposure_time = header["EXPTIME"],
+            exposure_time = exposure_time,
             binning = binning,
 
-            telescope = models.Telescope.GBT,
+            telescope = telescope,
             instrument = header.get("INSTRUME", None),
     )
     return obs

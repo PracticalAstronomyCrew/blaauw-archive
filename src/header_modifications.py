@@ -6,29 +6,6 @@ from astropy.coordinates import SkyCoord
 from astropy import units as u
 
 
-def path_to_file_id(path: str, strip_astrom: bool = True) -> Optional[str]:
-    """
-    Example paths resolving to the same file_id:
-    /net/vega/data/users/observatory/images/160216/STL-6303E/i/160216_Li_00000157.fits
-    -> 160216/160216_Li_00000157
-    /net/dataserver3/data/users/noelstorr/blaauwastrom/160216/astrom_160216_Li_00000157.fits
-    -> 160216/160216_Li_00000157 (with strip_astrom=True)
-    """
-    p = Path(path)
-
-    stem = p.stem
-    if strip_astrom:
-        stem = stem.strip("astrom_").strip(".astrom")
-
-    file_id = None
-    if "blaauwastrom" in p.parts:
-        file_id = p.parts[7] + "/" + stem
-    elif "observatory" in p.parts:
-        file_id = p.parts[7] + "/" + stem
-    elif "blaauwpipe":
-        file_id = p.parts[7] + "/" + stem
-
-    return file_id
 
 
 def add_file_id(head: dict) -> None:
