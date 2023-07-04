@@ -6,10 +6,6 @@ from sqlalchemy import Enum, UniqueConstraint, func
 from sqlalchemy.types import DateTime
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-class Base(DeclarativeBase):
-    __table_args__ = {"schema": "blaauw"}
-    pass
-
 class ImageType(enum.Enum):
     BIAS = "Bias"
     DARK = "Dark"
@@ -43,12 +39,18 @@ class Telescope(enum.Enum):
         return self.name
 
 
+class Base(DeclarativeBase):
+    __table_args__ = {"schema": "blaauw"}
+    pass
+
+
 class Observation(Base):
     __tablename__ = "raw"
+    # __table_args__ = (UniqueConstraint('file_id'),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    filename: Mapped[str]
-    file_id: Mapped[str]
+    filename: Mapped[str] = mapped_column(unique=True)
+    file_id: Mapped[str] = mapped_column(unique=True)
     date: Mapped[datetime]
     date_mjd: Mapped[float]
 
