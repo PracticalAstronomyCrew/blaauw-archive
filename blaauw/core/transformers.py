@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Tuple
 from blaauw.core import models
 from pathlib import Path
 
@@ -76,7 +76,7 @@ def path_to_file_id(path: Path) -> Optional[str]:
     return file_id
 
 
-def get_horizontal(header: dict) -> tuple[Optional[float], Optional[float]]:
+def get_horizontal(header: dict) -> Tuple[Optional[float], Optional[float]]:
     """
     Extracts the alt-az coordinates from the header. Will always be the values from the
     telescope itself.
@@ -89,7 +89,7 @@ def get_horizontal(header: dict) -> tuple[Optional[float], Optional[float]]:
     except KeyError:
         return None, None
 
-def get_equitorial(header: dict) -> tuple[Optional[float], Optional[float]]:
+def get_equitorial(header: dict) -> Tuple[Optional[float], Optional[float]]:
     """
     Extracts the equitorial coordinates from the header. If the file has a WCS, it will
     use those coordinates, otherwise it will use the values from the telescope itself.
