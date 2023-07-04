@@ -12,7 +12,7 @@ gen_file=src/generate.py
 data_dir=../data
 
 # Gavo directories
-schema_name=observations
+schema_name=blaauw
 base_dir=/var/gavo
 
 input_dir=$(base_dir)/inputs/$(schema_name)
@@ -29,19 +29,15 @@ move-logo:
 	cp resources/rug-logo.png  $(web_dir)/nv_static/img/logo_medium.png
 
 # Data resources
-generate: $(gen_file) $(col_head_list) $(doc_file)
-	mkdir -p $(target_dir)
-	python3 $(gen_file) $(col_head_list) $(doc_file) $(rd_file) $(table_file)
-
 reload-rd:
 	mkdir -p $(input_dir)
 	cd $(input_dir)
 	pwd
-	cp $(rd_file) $(input_dir)/q.rd
-	dachs imp -m $(schema_name)/q.rd
+	cp $(rd_file) $(input_dir)/blaauw.rd
+	dachs imp -m $(schema_name)/blaauw.rd
 
 publish-rd:
-	dachs pub -m $(schema_name)/q.rd
+	dachs pub -m $(schema_name)/blaauw.rd
 
 # Database stuff
 # Use with care!

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import pickle
+import socket
 from sys import argv
 
 import logging as log
@@ -116,7 +117,11 @@ def insert_header_list(headers: List[dict], engine):
 
 def main(args: argparse.Namespace):
     # Init database (from scratch)
-    engine = create_engine("postgresql+psycopg2://postgres:password@localhost:5432/dachs", echo=args.echo)
+    # TODO: Make this different for local & server 
+    if socket.gethostname() == "voserver.astro.rug.nl":
+        engine = create_engine("postgresql+psycopg2:///dachs", echo=args.echo)
+    else:
+        engine = create_engine("postgresql+psycopg2://postgres:password@localhost:5432/dachs", echo=args.echo)
 
     if args.reload_db:
         with Session(engine) as session:
@@ -130,7 +135,7 @@ def main(args: argparse.Namespace):
     models.Base.metadata.create_all(engine) # Init
 
     if args.reload_db:
-        header_files = ["./data/latest-headers.txt", "./data/processed-headers.txt"]
+        header_files = ["../data/latest-headers.txt", "../data/processed-headers.txt"]
         for header_file in header_files:
             with open(header_file, "rb") as f:
                 data = pickle.load(f)
