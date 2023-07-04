@@ -103,7 +103,7 @@ vim:et:sta:sw=2
       <description>Declination coordinate of where the telescope is pointed.</description></column>
     <column name="alt" type="double precision" unit="deg"  ucd="pos.eq.alt">
       <description>Alt-azimutal altitude</description></column>
-    <column name="azimuth" type="double precision" unit="deg"  ucd="pos.az.azi">
+    <column name="az" type="double precision" unit="deg"  ucd="pos.az.azi">
       <description>Alt-azimutal azimut</description></column>
 
     <column name="date_mjd" type="double precision" unit="d" ucd="time.epoch;obs">
@@ -128,19 +128,16 @@ vim:et:sta:sw=2
       <description>Name of the (intended) object being observed.</description></column>
     <column name="exposure_time" type="double precision" unit="s" ucd="time.duration;obs.exposure">
       <description>Exposure time of the observation (in seconds).</description></column>
-    <column name="binning" type="int" unit="" ucd="">
+    <column name="binning" type="bigint" unit="" ucd="">
       <description>The binning of the CCD (typically 1).</description></column>
-    <column name="airmass" type="float" unit="" ucd="">
+    <column name="airmass" type="double precision" unit="" ucd="">
       <description>Airmass of the observation</description></column>
-    <!-- <column name="OBJECT"   type="text"             unit=""  ucd=""><description></description></column> -->
-    <!-- <column name="OBJCTRA"  type="text"             unit=""  ucd=""><description>Estimated center right ascention coordinate of the image.</description></column> -->
-    <!-- <column name="OBJCTDEC" type="text"             unit=""  ucd=""><description>Estimated center declination coordinate of the image.</description></column> -->
 
   </table>
 
   <service id="cone" allowed="scs.xml,form">
-    <meta name='title'>Observations cone search</meta>
-    <meta name='shortName'>Obs Cone</meta>
+    <meta name='title'>Cone Search for raw Observations</meta>
+    <meta name='shortName'>Cone Raw</meta>
     <meta name='testQuery.ra'>51</meta>
     <meta name='testQuery.dec'>0</meta>
     <meta name='testQuery.sr'>0.01</meta>

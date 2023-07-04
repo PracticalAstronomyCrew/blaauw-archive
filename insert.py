@@ -131,6 +131,16 @@ def main(args: argparse.Namespace):
         with Session(engine) as session:
             session.execute(text("create schema blaauw"))
             session.commit()
+        # We need to make sure here that we grant privileges to the relevant tables (see below for example)
+
+        # dachs=# GRANT ALL PRIVILEGES ON SCHEMA blaauw TO feed WITH GRANT OPTION;
+        # dachs=# GRANT SELECT ON blaauw.raw TO feed WITH GRANT OPTION;
+
+        # GRANT ALL PRIVILEGES ON SCHEMA observations TO feed WITH GRANT OPTION;
+        # GRANT SELECT ON observations.raw TO feed WITH GRANT OPTION;
+        # GRANT SELECT ON observations.reduced TO feed WITH GRANT OPTION;
+        # GRANT SELECT ON observations.calibration TO feed WITH GRANT OPTION;
+        # GRANT SELECT ON observations.composition TO feed WITH GRANT OPTION;
 
     models.Base.metadata.create_all(engine) # Init
 

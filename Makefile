@@ -1,10 +1,6 @@
 # Files for generate commands
-col_raw_list=definitions/columns/raw.csv
-col_head_list=definitions/columns/headers.csv
-doc_file=definitions/doc.rst
-
-target_dir=generated
-rd_file=$(target_dir)/q.rd
+target_dir=definitions
+rd_file=$(target_dir)/blaauw.rd
 table_file=$(target_dir)/table.sql
 
 gen_file=src/generate.py
@@ -33,11 +29,11 @@ reload-rd:
 	mkdir -p $(input_dir)
 	cd $(input_dir)
 	pwd
-	cp $(rd_file) $(input_dir)/blaauw.rd
-	dachs imp -m $(schema_name)/blaauw.rd
+	cp $(rd_file) $(input_dir)/q.rd
+	dachs imp -m $(schema_name)/q.rd
 
 publish-rd:
-	dachs pub -m $(schema_name)/blaauw.rd
+	dachs pub -m $(schema_name)/q.rd
 
 # Database stuff
 # Use with care!
