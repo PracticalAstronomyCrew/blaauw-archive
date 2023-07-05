@@ -47,8 +47,8 @@ def create_observation(header: dict) -> models.Observation:
     obs = models.Observation(
             filename=header["FILENAME"],
             file_id=file_id,
-            date = date.to_datetime(),
-            date_mjd = date.mjd,
+            date_obs = date.to_datetime(),
+            date_obs_mjd = date.mjd,
 
             ra = ra,
             dec = dec,
