@@ -183,16 +183,15 @@ def main(args: argparse.Namespace):
     with Session(engine) as session:
         sl = select(models.Observation)
         all_obs = len(session.scalars(sl).all())
-        if all_obs > 0:
-            sl_first = select(models.Observation).add_columns(models.Observation.date).order_by(models.Observation.date.asc())
-            sl_last = select(models.Observation).add_columns(models.Observation.date).order_by(models.Observation.date.desc())
-            first = session.scalars(sl_first).first()
-            last = session.scalars(sl_last).first()
+        sl_first = select(models.Observation).add_columns(models.Observation.date_obs).order_by(models.Observation.date_obs.asc())
+        sl_last = select(models.Observation).add_columns(models.Observation.date_obs).order_by(models.Observation.date_obs.desc())
+        first = session.scalars(sl_first).first()
+        last = session.scalars(sl_last).first()
 
     log.info(f"--------------------------------------------------------------------------------")
     log.info(f"- We have {all_obs} entries")
-    if all_obs > 0:
-        log.info(f"- Ranging from {first.date.date()} to {last.date.date()}")
+    if first is not None and last is not None:
+        log.info(f"- Ranging from {first.date_obs.date()} to {last.date_obs.date()}")
     log.info(f"--------------------------------------------------------------------------------")
 
 def parse() -> argparse.Namespace:
