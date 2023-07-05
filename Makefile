@@ -49,9 +49,10 @@ create-db:
 
 insert:
 	mkdir -p $(logs_dir)
-	python3 insert.py --file $(data_dir)/latest-headers.txt &> $(logs_dir)/$(now)-insert.log
-	python3 insert.py --file $(data_dir)/processed-headers.txt &>> $(logs_dir)/$(now)-insert.log
-
+	python3 insert.py --file $(data_dir)/gbt-headers.txt &> $(logs_dir)/$(now)-insert.log
+	python3 insert.py --file $(data_dir)/gbt-22-23-headers.txt  &>> $(logs_dir)/$(now)-insert.log
+	python3 insert.py --file $(data_dir)/processed-gbt-headers.txt &>> $(logs_dir)/$(now)-insert.log
+	python3 insert.py --file $(data_dir)/ldst-headers.pickle &>> $(logs_dir)/$(now)-insert.log
 
 # Docker stuff
 start-db:

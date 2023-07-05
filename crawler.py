@@ -252,7 +252,7 @@ def main() -> None:
     dates = []
     for child in children:
         if child.name in DIR_EXEPTIONS:
-            print(f"Skipping {child}: exception...")
+            print(f"Skipping {child.name}: exception...")
             continue
         match = date_re.match(child.name)
         if match is None:
