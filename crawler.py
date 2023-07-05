@@ -174,6 +174,7 @@ def collect(
 
 
 def split_astrometry(iter: Iterable[str]):
+    # TODO: not used?
     astrom_files = filter(
         lambda f: f.endswith("astrom.fits") or f.endswith("astrom.FIT"),
         iter,
@@ -230,20 +231,32 @@ def crawl(search_dirs: List[Path], pipeline=False) -> dict[str, List[HeaderDict]
 
     return result
 
+DIR_EXEPTIONS = {"2222-22-22", "FISHEYE JAKE 20230407"}
 
 def main() -> None:
     args = parse()
 
+    # Assert that the output directory exists
+    output_directory = Path(args.output if args.output else ".").resolve()
+    if not output_directory.is_dir():
+        print(f"Given output directory {output_directory.absolute()} does not exist.")
+        exit(1)
+
     # Construct the base directory from where to search (given as an argument)
     base_directory = Path(BASE_DIR_MAP[args.base])
 
+    print(f"Indexing dates in {base_directory}...")
     # List all valid dates in that directory
     date_re = re.compile(r"([0-9][0-9])?([0-9][0-9]-?[0-9][0-9]-?[0-9][0-9])")
     children = list(base_directory.iterdir())
     dates = []
     for child in children:
+        if child.name in DIR_EXEPTIONS:
+            print(f"Skipping {child}: exception...")
+            continue
         match = date_re.match(child.name)
         if match is None:
+            print(f"Skipping {child.name}: not matched...")
             continue
         date_str = match.groups()[-1] # match the last group
         date_str = date_str.replace("-", "")
@@ -282,12 +295,6 @@ def main() -> None:
     # print("To search")
     # for d in search_dirs:
     #     print(d)
-
-    # Assert that the output directory exists
-    output_directory = Path(args.output if args.output else ".").resolve()
-    if not output_directory.is_dir():
-        print(f"Given output directory {output_directory.absolute()} does not exist.")
-        exit(1)
 
     total_time = process_time()
 
