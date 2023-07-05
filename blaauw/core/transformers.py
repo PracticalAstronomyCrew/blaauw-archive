@@ -87,6 +87,11 @@ def get_horizontal(header: dict) -> Tuple[Optional[float], Optional[float]]:
         # Already in degrees
         return header["CENTALT"], header["CENTAZ"]
     except KeyError:
+        pass
+    try:
+        # Already in degrees
+        return float(header["OBJCTALT"]), float(header["OBJCTAZ"])
+    except KeyError:
         return None, None
 
 def get_equitorial(header: dict) -> Tuple[Optional[float], Optional[float]]:

@@ -93,6 +93,8 @@ vim:et:sta:sw=2
   </meta>
 
   <table id="raw" onDisk="True" adql="True" mixin="//scs#pgs-pos-index">
+    <column name="file_id" type="text" unit="" ucd="meta.id;meta.file;meta.main">
+      <description>Combination of the folder date and file name to compare raw and processed files.</description></column>
     <column name="ra" type="double precision" unit="deg"  ucd="pos.eq.ra;meta.main">
       <description>Right Ascention coordinate of where the telescope is pointed.</description></column>
     <column name="dec" type="double precision" unit="deg"  ucd="pos.eq.dec;meta.main">

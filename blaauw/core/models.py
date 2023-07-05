@@ -28,8 +28,13 @@ BASE_DIR_MAP = {
 }
 
 # GBT:
-# SITELAT  '+53:14:24.90',
-# SITELONG '-006:32:11.20',
+# SITELAT  '+53:14:24.90'
+# SITELONG '-006:32:11.20'
+
+# LDST:
+# SITELAT  '53 23 04'
+# SITELONG '06 14 05'
+
 
 class Telescope(enum.Enum):
     LDST = "LDST" #Lauwersmeer Dark Sky Telescope
