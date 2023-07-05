@@ -6,6 +6,8 @@ from sqlalchemy import Enum, UniqueConstraint, func
 from sqlalchemy.types import DateTime
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
+
+
 class ImageType(enum.Enum):
     BIAS = "Bias"
     DARK = "Dark"
@@ -17,6 +19,13 @@ RAW_GBT = Path("/net/vega/data/users/observatory/images/")
 RAW_LDST = Path("/net/vega/data/users/observatory/LDST")
 ASTROM_GBT = Path("/net/dataserver3/data/users/noelstorr/blaauwastrom/")
 PIPE_GBT = Path("/net/dataserver3/data/users/noelstorr/blaauwpipe/")
+
+BASE_DIR_MAP = {
+        "RAW_GBT": RAW_GBT,
+        "RAW_LDST": RAW_LDST,
+        "ASTROM_GBT": ASTROM_GBT,
+        "PIPE_GBT": PIPE_GBT,
+}
 
 # GBT:
 # SITELAT  '+53:14:24.90',
