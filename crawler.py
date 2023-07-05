@@ -236,8 +236,6 @@ def main() -> None:
 
     # Construct the base directory from where to search (given as an argument)
     base_directory = Path(BASE_DIR_MAP[args.base])
-    print(base_directory)
-    base_directory = Path("../tmp-bases") # Just to test for now
 
     # List all valid dates in that directory
     date_re = re.compile(r"([0-9][0-9])?([0-9][0-9]-?[0-9][0-9]-?[0-9][0-9])")
@@ -250,7 +248,7 @@ def main() -> None:
         date_str = match.groups()[-1] # match the last group
         date_str = date_str.replace("-", "")
         date = dt.datetime.strptime(date_str, "%y%m%d").date() # format: YYMMDD
-        print(f"parsed: {date} from {child}")
+        # print(f"parsed: {date} from {child}")
         dates.append((date, child))
 
     dates.sort()
@@ -281,9 +279,9 @@ def main() -> None:
         search_dirs = [d[1] for d in dates if d[0] == args.date]
         outfile_date = args.date.strftime('%y%m%d')
     
-    print("To search")
-    for d in search_dirs:
-        print(d)
+    # print("To search")
+    # for d in search_dirs:
+    #     print(d)
 
     # Assert that the output directory exists
     output_directory = Path(args.output if args.output else ".").resolve()
