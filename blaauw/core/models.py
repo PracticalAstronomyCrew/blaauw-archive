@@ -46,13 +46,11 @@ class Base(DeclarativeBase):
 
 class Observation(Base):
     __tablename__ = "raw"
-    # __table_args__ = (UniqueConstraint('file_id'),)
-
     id: Mapped[int] = mapped_column(primary_key=True)
     filename: Mapped[str] = mapped_column(unique=True)
     file_id: Mapped[str] = mapped_column(unique=True)
-    date: Mapped[datetime]
-    date_mjd: Mapped[float]
+    date_obs: Mapped[datetime]
+    date_obs_mjd: Mapped[float]
 
     ra: Mapped[Optional[float]]
     dec: Mapped[Optional[float]]
@@ -77,4 +75,4 @@ class Observation(Base):
 
 
     def __repr__(self) -> str:
-        return f"Observation(filename={self.filename.split('/')[-1]}, date='{self.date}', object={self.target_object}, image_type={self.image_type}, filter={self.filter}, telescope={self.telescope}, created_at='{self.created_at}', updated_at='{self.updated_at}')"
+        return f"Observation(file_id={self.file_id}, date_obs='{self.date_obs}', image_type={self.image_type}, filter={self.filter}, telescope={self.telescope}, filename={self.filename.split('/')[-1]}, created_at='{self.created_at}', updated_at='{self.updated_at}')"

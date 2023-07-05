@@ -14,8 +14,12 @@ from sqlalchemy import create_engine, select, text, update
 from sqlalchemy.orm import Session
 from blaauw.core import models, transformers
 
+RUNNING_SERVER = False
 
-def create_observation(header: dict):
+def create_observation(header: dict) -> models.Observation:
+    """
+    Given a header, creates an Observation out of it.
+    """
     # Assume utc
     date_str = header["DATE-OBS"]
     # maybe format="isot" ?
@@ -87,9 +91,9 @@ def insert_header_list(headers: List[dict], engine):
             obs = create_observation(header)
             observations.append(obs)
 
-        log.info(f"---------------------------------------------------------------------------------------")
+        log.info(f"--------------------------------------------------------------------------------")
         log.info(f"- Inserting {len(observations)} observations (if not existing) ...")
-        log.info(f"---------------------------------------------------------------------------------------")
+        log.info(f"--------------------------------------------------------------------------------")
         # Insert everything
         to_update: List[models.Observation] = []
         with Session(engine) as session:
@@ -99,9 +103,9 @@ def insert_header_list(headers: List[dict], engine):
                     to_update.append(obs_update)
             session.commit()
     
-        log.info(f"---------------------------------------------------------------------------------------")
+        log.info(f"--------------------------------------------------------------------------------")
         log.info(f"- {len(observations) - len(to_update)} inserted, now updating {len(to_update)} elements...")
-        log.info(f"---------------------------------------------------------------------------------------")
+        log.info(f"--------------------------------------------------------------------------------")
 
         update_stmt = update(models.Observation)
         update_params = set(update_stmt.compile().params) - {'id', 'created_at', 'updated_at'}
@@ -111,24 +115,29 @@ def insert_header_list(headers: List[dict], engine):
                 session.execute(obs_update)
             session.commit()
 
-        log.info(f"---------------------------------------------------------------------------------------")
+        log.info(f"--------------------------------------------------------------------------------")
         log.info(f"- Done updating")
-        log.info(f"---------------------------------------------------------------------------------------")
+        log.info(f"--------------------------------------------------------------------------------")
 
 def main(args: argparse.Namespace):
-    # Init database (from scratch)
-    # TODO: Make this different for local & server 
-    if socket.gethostname() == "voserver.astro.rug.nl":
+    # TODO: Make this more general for any hostname, password etc.
+    log.info(f"Starting run (server={RUNNING_SERVER})")
+    log.info("Connecting to database")
+    if RUNNING_SERVER:
         engine = create_engine("postgresql+psycopg2:///dachs", echo=args.echo)
     else:
+        # Local version
         engine = create_engine("postgresql+psycopg2://postgres:password@localhost:5432/dachs", echo=args.echo)
 
     if args.reload_db:
+        log.info("Recreating database from scratch")
         with Session(engine) as session:
+            log.info("Dropping schema")
             session.execute(text("drop schema if exists blaauw cascade"))
             session.commit()
 
         with Session(engine) as session:
+            log.info("Dropping recreating schema")
             session.execute(text("create schema blaauw"))
             session.commit()
         # We need to make sure here that we grant privileges to the relevant tables (see below for example)
@@ -144,23 +153,30 @@ def main(args: argparse.Namespace):
 
     models.Base.metadata.create_all(engine) # Init
 
-    if args.reload_db:
-        header_files = ["../data/latest-headers.txt", "../data/processed-headers.txt"]
-        for header_file in header_files:
-            with open(header_file, "rb") as f:
-                data = pickle.load(f)
-            log.info(f"---------------------------------------------------------------------------------------")
-            log.info(f"- Creating observations from {header_file}")
-            log.info(f"---------------------------------------------------------------------------------------")
-            insert_header_list(data, engine)
+    # If running on the server, grant privileges to all the tables
+    if args.reload_db and RUNNING_SERVER:
+        with Session(engine) as session:
+            session.execute(text("GRANT ALL PRIVILEGES ON SCHEMA blaauw TO feed WITH GRANT OPTION"))
+            for table in models.Base.metadata.tables.keys():
+                session.execute(text(f"GRANT SELECT ON {table} TO feed WITH GRANT OPTION"))
+            session.commit()
 
-    # Can it be empty?
+    # if args.reload_db:
+    #     header_files = ["../data/latest-headers.txt", "../data/processed-headers.txt"]
+    #     for header_file in header_files:
+    #         with open(header_file, "rb") as f:
+    #             data = pickle.load(f)
+    #         log.info(f"---------------------------------------------------------------------------------------")
+    #         log.info(f"- Creating observations from {header_file}")
+    #         log.info(f"---------------------------------------------------------------------------------------")
+    #         insert_header_list(data, engine)
+
     if args.file:
         with open(args.file, "rb") as f:
             data = pickle.load(f)
-        log.info(f"---------------------------------------------------------------------------------------")
+        log.info(f"--------------------------------------------------------------------------------")
         log.info(f"- Creating observations from {args.file}")
-        log.info(f"---------------------------------------------------------------------------------------")
+        log.info(f"--------------------------------------------------------------------------------")
         insert_header_list(data, engine)
 
     # Report what is in there
@@ -173,17 +189,15 @@ def main(args: argparse.Namespace):
             first = session.scalars(sl_first).first()
             last = session.scalars(sl_last).first()
 
-    log.info(f"---------------------------------------------------------------------------------------")
+    log.info(f"--------------------------------------------------------------------------------")
     log.info(f"- We have {all_obs} entries")
     if all_obs > 0:
         log.info(f"- Ranging from {first.date.date()} to {last.date.date()}")
-    log.info(f"---------------------------------------------------------------------------------------")
+    log.info(f"--------------------------------------------------------------------------------")
 
 def parse() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--file", type=str)
-    # parser.add_argument("--raw", type=str)
-    # parser.add_argument("--use-db", action="store_true")
     parser.add_argument("--reload-db", action="store_true")
     parser.add_argument("--echo", action="store_true")
     parser.add_argument("--debug", action="store_true")
@@ -196,5 +210,5 @@ if __name__ == '__main__':
         log.basicConfig(level=log.DEBUG)
     else:
         log.basicConfig(level=log.INFO)
+    RUNNING_SERVER = socket.gethostname() == "voserver.astro.rug.nl"
     main(args)
-

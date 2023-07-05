@@ -93,10 +93,6 @@ vim:et:sta:sw=2
   </meta>
 
   <table id="raw" onDisk="True" adql="True" mixin="//scs#pgs-pos-index">
-
-    <column name="id" type="bigint" unit="" ucd="meta.id;meta.main" required="True">
-      <description>Database identifier of the file.</description></column>
-
     <column name="ra" type="double precision" unit="deg"  ucd="pos.eq.ra;meta.main">
       <description>Right Ascention coordinate of where the telescope is pointed.</description></column>
     <column name="dec" type="double precision" unit="deg"  ucd="pos.eq.dec;meta.main">
@@ -106,9 +102,9 @@ vim:et:sta:sw=2
     <column name="az" type="double precision" unit="deg"  ucd="pos.az.azi">
       <description>Alt-azimutal azimut</description></column>
 
-    <column name="date_mjd" type="double precision" unit="d" ucd="time.epoch;obs">
+    <column name="date_obs_mjd" type="double precision" unit="d" ucd="time.epoch;obs">
       <description>Observation date and time as Modified Julian Date (MJD). Derived from the 'DATE_OBS' keyword.</description></column>
-    <column name="date" type="double precision" unit="d" ucd="time.epoch;obs">
+    <column name="date_obs" type="timestamp" unit="" ucd="time.epoch;obs">
       <description>Observation date and time in UTC.</description></column>
 
     <column name="filename" type="text" unit="" ucd="meta.id;meta.file">
@@ -128,11 +124,17 @@ vim:et:sta:sw=2
       <description>Name of the (intended) object being observed.</description></column>
     <column name="exposure_time" type="double precision" unit="s" ucd="time.duration;obs.exposure">
       <description>Exposure time of the observation (in seconds).</description></column>
-    <column name="binning" type="bigint" unit="" ucd="">
+    <column name="binning" type="smallint" unit="" ucd="">
       <description>The binning of the CCD (typically 1).</description></column>
-    <column name="airmass" type="double precision" unit="" ucd="">
+    <column name="airmass" type="double precision" unit="" ucd="obs.airmass">
       <description>Airmass of the observation</description></column>
 
+    <column name="created_at" type="timestamp" unit="" ucd="time.creation">
+      <description>Datetime on which the entry was first inserted into the database.</description></column>
+    <column name="updated_at" type="timestamp" unit="" ucd="time.creation">
+      <description>Datetime on which the entry last updated.</description></column>
+    <column name="id" type="bigint" unit="" ucd="meta.id;meta.main" required="True">
+      <description>Database identifier of the file.</description></column>
   </table>
 
   <service id="cone" allowed="scs.xml,form">
