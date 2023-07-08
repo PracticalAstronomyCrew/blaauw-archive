@@ -122,7 +122,7 @@ A possible solution is to compute the same column but without taking the absolut
 How to use this query in another program (Python) is one of the examples in the `TAP Queries Notebook`_ .
 
 .. _TAP Queries Notebook: https://github.com/PracticalAstronomyCrew/blaauw-archive/blob/master/example/TAPQueries.ipynb
-.. _ADQL tutorial: <https://vo.astro.rug.nl/__system__/adql/query/info>
+.. _ADQL tutorial: https://vo.astro.rug.nl/__system__/adql/query/info
 
   </meta>
 
