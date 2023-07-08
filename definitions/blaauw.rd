@@ -19,77 +19,119 @@ vim:et:sta:sw=2
   <!-- <meta name=""></meta> -->
 
   <meta name="_longdoc" format="rst">
-    Some example queries (with what they mean) 
-    ==========================================
+  It is recommended to query the archive using another program via TAP, like
+  TOPCAT or Python. Some examples on how to work with the database from Python is given
+  in the example `Queries Notebook https://github.com/PracticalAstronomyCrew/blaauw-archive/blob/master/example/TAPQueries.ipynb`_.`
 
-    OUT OF DATE!!
+  For some comprehensive guides on how to use ADQL look at `this tutorial
+  http://vo.astro.rug.nl/__system__/adql/query/info`_.
 
-    Select all observations which have been made in 2020. 
-    -----------------------------------------------------
-    
-    ::
+  Some example queries (with what they mean) 
+  ==========================================
 
-     SELECT *
-     FROM observations.raw
-     WHERE date_obs like '2020%'
+  Select all observations which have been made in 2020. 
+  -----------------------------------------------------
 
-    The ``'like'`` clause is used to check simple regular expressions for strings. ``%`` means match zero or more characters, so this example matches any string which starts with '2020'.
+  ::
 
-    A more specific variant: all observations which have been made on a specific day (this case 18th April 2020)::
-     
-     SELECT *
-     FROM observations.raw
-     WHERE date_obs like '2020-04-18%'
+          SELECT *
+          FROM blaauw.raw
+          WHERE date_obs_mjd between 58849 and 59215
 
-    Note that this can be tricky as 'date_obs' is the exact moment of the observation, take this into account!
+  The best way to compare dates is to use the ``date_obs_mjd`` (date of the observation in Modified Julian days).
+  A convenient calculator is: https://mjdconverter.com/. Here 2020 (first of January 00h) refers to 58849, 2021 to 59215.
+  Some common values are:
 
-    Select all flat field observations taken in the 'R' filter, sorted by date.
-    ---------------------------------------------------------------------------
+  .. list-table:: Useful MJD Values
+     :widths: auto
+     :header-rows: 1
 
-    ::
-     
-     SELECT *
-     FROM observations.raw
-     WHERE filter = 'R' AND imagetyp = 'Flat Frame'
-     ORDER BY date_obs
+     * - Year
+       - MJD
+     * - 2018
+       - 58119
+     * - 2019
+       - 58484
+     * - 2020
+       - 58849
+     * - 2021
+       - 59215
+     * - 2022
+       - 59580
+     * - 2023
+       - 59945
+     * - 2024
+       - 60310
+     * - 2025
+       - 60676
 
-    Note the use of AND to combine multiple conditions into one expression. The OR operator is also available.
+  A more specific variant: all observations which have been made on a specific
+  day (this case 18th April 2020). Using the calculator we find that the MJD is
+  58957, which will be 18th of April at 00:00, so it refers to the night 17-18 in
+  April. We therefore need to add half a day (18th at noon) for the lower limit,
+  and add 1.5 days for the upper limit (19th at noon).::
 
-    Select all files with obs_date closest to a given date
-    ------------------------------------------------------
+          SELECT *
+          FROM blaauw.raw
+          WHERE date_obs_mjd between (58957 + 0.5) and (58957 + 1.5)
 
-    Given some date (in Julian Date format) ``[ref_date]``, query the files which have been taken most recent (past or future) w.r.t. it.
+  Note that this can be tricky as 'date_obs_mjd' is the exact moment of the
+  observation, take this into account!
 
-    ::
+  Flat Fields in R of GBT
+  -----------------------
 
-     SELECT filename, date_obs, ABS(obs_jd - [ref_date]) AS difference
-     FROM observations.raw
-     ORDER BY difference
-    
-    Key feature here is that you can compute your own column (based on simple mathematical expressions) and give them a name using the ``'AS'`` keyword.
+  ::
 
-    A more specific example:
-    Retrieve the nearest 3x3 binned flat field images to the night of 17th of april 2020 (``2020-04-18T01:25:53.895``, jd: ``2458957.55965156``).
+          SELECT *
+          FROM blaauw.raw
+          WHERE filter = 'R' AND image_type = 'FLAT' AND telescope = 'GBT'
+          ORDER BY date_obs
 
-    ::
+  Note the use of AND to combine multiple conditions into one expression. The OR operator is also available.
 
-     SELECT TOP 10 filename, date_obs, ABS(obs_jd - 2458957.55965156) AS difference
-     FROM observations.raw
-     WHERE imagetyp = 'Flat Field' AND xbinning = 3 AND ybinning = 3
-     ORDER BY difference
+  Select all files with obs_date closest to a given date
+  ------------------------------------------------------
 
-    Note that there are some issues, as it does not take into account the filter in which the flat field was taken.
-    Ideally you would want to execute this query for each desired filter (e.g. add: ``WHERE ... AND filter = 'R'``).
-    In addition, if there are viable flats in the day before and after, the result can be mixed (as the difference is taken absolute).
-    A possible solution is to compute the same column but without taking the absolute and use that column in some other program.
-        
-    ::
+  Given some date (in MJD format) ``[ref_date]``, query the files which have been
+  taken most recent (past or future) w.r.t. it.
 
-     SELECT TOP 10 filename, date_obs, ABS(obs_jd - 2458957.55965156) AS abs_difference, obs_jd - 2458957.55965156 AS difference
-     FROM observations.raw
-     WHERE imagetyp = 'Flat Field' AND xbinning = 3 AND ybinning = 3
-     ORDER BY abs_difference
+  ::
 
+          SELECT filename, date_obs_mjd, ABS(date_obs_mjd - [ref_date]) AS difference
+          FROM blaauw.raw
+          ORDER BY difference
+
+  Key feature here is that you can compute your own column (based on simple
+  mathematical expressions) and give them a name using the ``'AS'`` keyword.
+
+  A more specific example: Retrieve the nearest 3x3 binned flat field images to
+  the night of 17th of april 2020 (``2020-04-18 00:00:00``, MJD:
+  ``58957``).
+
+  ::
+
+          SELECT TOP 10 filename, date_obs_mjd, ABS(date_obs_mjd - 58957) AS difference
+          FROM blaauw.raw
+          WHERE image_type = 'FLAT' AND binning = 3
+          ORDER BY difference
+
+  Note that there are some issues, as it does not take into account the filter in
+  which the flat field was taken. Ideally you would want to execute this query
+  for each desired filter (e.g. add: ``WHERE ... AND filter = 'R'``). In
+  addition, if there are viable flats in the day before and after, the result can
+  be mixed (as the difference is taken absolute). A possible solution is to
+  compute the same column but without taking the absolute and use that column in
+  some other program. 
+
+  ::
+
+          SELECT TOP 10 filename, date_obs, ABS(date_obs_mjd - 58957) AS abs_difference, date_obs_mjd - 58957 AS difference
+          FROM blaauw.raw
+          WHERE image_type = 'FLAT' AND binning = 3
+          ORDER BY abs_difference
+
+  How to use this query in another program (Python) is one of the examples in the `TAP Queries Notebook https://github.com/PracticalAstronomyCrew/blaauw-archive/blob/master/example/TAPQueries.ipynb`_.
   </meta>
 
   <table id="raw" onDisk="True" adql="True" mixin="//scs#pgs-pos-index">
@@ -139,7 +181,7 @@ vim:et:sta:sw=2
       <description>Database identifier of the file.</description></column>
   </table>
 
-  <service id="cone" allowed="scs.xml,form">
+  <service id="raw-cone" allowed="scs.xml,form">
     <meta name='title'>Cone Search for raw Observations</meta>
     <meta name='shortName'>Cone Raw</meta>
     <meta name='testQuery.ra'>51</meta>
@@ -157,4 +199,3 @@ vim:et:sta:sw=2
   </data>
 
 </resource>
-
