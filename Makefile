@@ -17,10 +17,15 @@ now := $(shell date +%Y%m%d-%H%M%S)
 ## Commands
 reload: reload-rd publish-rd
 
-# Static resources (images, templates etc.)
+# Static resources (config, images, templates etc.)
+move-static: move-logo move-config
+
 move-logo:
 	mkdir -p $(web_dir)/nv_static/img
 	cp resources/rug-logo.png  $(web_dir)/nv_static/img/logo_medium.png
+
+move-config:
+	cp resources/defaultmeta.txt $(base_dir)/etc/defaultmeta.txt
 
 # Data resources
 reload-rd:

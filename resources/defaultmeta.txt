@@ -1,0 +1,20 @@
+publisher: Kapteyn Institute
+contact.name: Sten Sipma
+contact.email: sipma@astro.rug.nl
+creator.name: Sten Sipma
+creator.logo: \getConfig{web}{serverURL}/favicon.png
+
+_noresultwarning: Your query did not match any data.
+
+i-am-sure: yes
+
+authority.creationDate: 2023-07-03T00:00:00
+authority.title: Blaauw Archive
+authority.shortName: Blaauw Archive
+authority.description: This should be a relatively terse description of what you claim authority for.
+authority.referenceURL: https://www.rug.nl/research/kapteyn/sterrenwacht/
+authority.description: TODO, just a placeholder for now.
+
+site.description: The Blaauw Archive aims to make observations taken by the \
+Blaauw Observatory more accessible by aggregating all header information in \
+queryable tables.
