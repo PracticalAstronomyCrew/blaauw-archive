@@ -9,6 +9,7 @@ import logging as log
 
 from pathlib import Path
 from typing import List, Optional
+from astropy.coordinates import AltAz, SkyCoord
 from astropy.time import Time
 from sqlalchemy import create_engine, select, text, update
 from sqlalchemy.orm import Session
@@ -35,10 +36,19 @@ def create_observation(header: dict) -> models.Observation:
     telescope = models.Telescope.from_path(filename)
     file_id = transformers.path_to_file_id(filename)
 
+    airmass = header.get("AIRMASS", None)
     ra, dec = transformers.get_equitorial(header)
-    alt, az = transformers.get_horizontal(header)
-    # Maybe: if alt-az not available, but ra & dec are. Calculate them ?
-    # Same for airmass
+    # if ra & dec are available calculate alt az and airmass.
+    # TODO: probably only do this if astrometry is available (most reliable)
+    if dec is not None and ra is not None and telescope is not None:
+        coord = SkyCoord(ra, dec, obstime=date, unit='deg')
+        horizontal_frame  = coord.transform_to(AltAz(location=telescope.location()))
+
+        alt = horizontal_frame.alt.deg
+        az = horizontal_frame.az.deg
+        airmass = horizontal_frame.secz.value
+    else:
+        alt, az = transformers.get_horizontal(header)
 
     exposure_time = header.get("EXPTIME", None)
     if exposure_time is None:
@@ -54,7 +64,7 @@ def create_observation(header: dict) -> models.Observation:
             dec = dec,
             alt = alt,
             az = az,
-            airmass = header.get("AIRMASS", None),
+            airmass = airmass,
 
             image_type = transformers.imtyp_to_enum(imtyp, filter=filter, obj=obj),
             filter = filter,

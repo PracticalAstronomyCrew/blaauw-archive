@@ -1,8 +1,10 @@
 from typing import Optional, Tuple
+
+from astropy.time import Time
 from blaauw.core import models
 from pathlib import Path
 
-from astropy.coordinates import SkyCoord
+from astropy.coordinates import AltAz, EarthLocation, SkyCoord
 import astropy.units as u
 
 
@@ -20,6 +22,9 @@ def imtyp_to_enum(imtyp: Optional[str] = None, filter: Optional[str] = None, obj
         if imtyp.lower() in ("dark", "dark frame"):
             return models.ImageType.DARK
         if imtyp.lower() in ("light", "light frame"):
+            if filter is not None and filter.lower() == 'dark':
+                # Special case where we took darks as light images with a 'Dark' filter
+                return models.ImageType.DARK
             return models.ImageType.LIGHT
 
     if filter is not None:
@@ -108,3 +113,4 @@ def get_equitorial(header: dict) -> Tuple[Optional[float], Optional[float]]:
         return coord.ra.degree, coord.dec.degree
 
     return None, None
+

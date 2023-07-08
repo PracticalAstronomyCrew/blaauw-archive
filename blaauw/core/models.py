@@ -2,10 +2,10 @@ from datetime import datetime
 import enum
 from pathlib import Path
 from typing import Optional
+from astropy.coordinates import EarthLocation, Latitude, Longitude
 from sqlalchemy import Enum, UniqueConstraint, func
 from sqlalchemy.types import DateTime
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-
 
 
 class ImageType(enum.Enum):
@@ -27,14 +27,8 @@ BASE_DIR_MAP = {
         "PIPE_GBT": PIPE_GBT,
 }
 
-# GBT:
-# SITELAT  '+53:14:24.90'
-# SITELONG '-006:32:11.20'
-
-# LDST:
-# SITELAT  '53 23 04'
-# SITELONG '06 14 05'
-
+GBT_LOCATION = EarthLocation.from_geodetic(lon=Longitude('06d32m11.20s'), lat=Latitude('+53d14m24.90s'), height=0)
+LDST_LOCATION = EarthLocation.from_geodetic(lon=Longitude('06d14m05s'), lat=Latitude('+53d23m04s'), height=0)
 
 class Telescope(enum.Enum):
     LDST = "LDST" #Lauwersmeer Dark Sky Telescope
@@ -48,6 +42,13 @@ class Telescope(enum.Enum):
         if RAW_LDST in parents:
             return cls.LDST
         return None
+
+    def location(self) -> EarthLocation:
+        if self is Telescope.LDST:
+            return LDST_LOCATION
+        else:
+            return GBT_LOCATION
+
 
     def __str__(self) -> str:
         return self.name
