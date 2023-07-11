@@ -1,16 +1,13 @@
 from __future__ import annotations
 
 import argparse
-import os
-import re
-import pickle
 import datetime as dt
-from pathlib import Path
-
+import pickle
+import re
 from itertools import chain
+from pathlib import Path
 from time import process_time
-from typing import Any, Iterable, List, Optional, Dict
-
+from typing import Any, Dict, Iterable, List, Optional
 
 from astropy.io import fits
 from tqdm import tqdm
@@ -52,7 +49,7 @@ def header_to_dict(filename: Path) -> HeaderDict:
         final_dict["BP-SRC"] = sources
 
         # Remove the 'old' entries
-        del final_dict[f"BP-SRCN"]
+        del final_dict["BP-SRCN"]
         for i in range(1, n + 1):
             del final_dict[f"BP-SRC{i}"]
 
@@ -217,7 +214,7 @@ def crawl(search_dirs: List[Path], pipeline=False) -> dict[str, List[HeaderDict]
         headers, errors, duration = collect(files_iter, progress_desc="All")
 
         # Store resulting headers
-        result['Raw'] = headers
+        result["Raw"] = headers
 
         # Report
         print("Took {}s".format(duration))
@@ -231,7 +228,9 @@ def crawl(search_dirs: List[Path], pipeline=False) -> dict[str, List[HeaderDict]
 
     return result
 
+
 DIR_EXEPTIONS = {"2222-22-22", "FISHEYE JAKE 20230407"}
+
 
 def main() -> None:
     args = parse()
@@ -258,9 +257,9 @@ def main() -> None:
         if match is None:
             print(f"Skipping {child.name}: not matched...")
             continue
-        date_str = match.groups()[-1] # match the last group
+        date_str = match.groups()[-1]  # match the last group
         date_str = date_str.replace("-", "")
-        date = dt.datetime.strptime(date_str, "%y%m%d").date() # format: YYMMDD
+        date = dt.datetime.strptime(date_str, "%y%m%d").date()  # format: YYMMDD
         # print(f"parsed: {date} from {child}")
         dates.append((date, child))
 
@@ -268,7 +267,7 @@ def main() -> None:
     # Now we have a list with tuples: (date, path). Note that date is not unique!
 
     # Now we have 3 cases:
-    # 1. We want to seach everything (--all) 
+    # 1. We want to seach everything (--all)
     #    --> We can just seach all the listed directories
     # 2. We want to search a specific date (--date)
     #    --> Find the matching date(s) in the list
@@ -278,20 +277,24 @@ def main() -> None:
     # Case 1.
     search_dirs = []
     if args.all:
-        print(f"Running for all dates")
+        print("Running for all dates")
         search_dirs = [d[1] for d in dates]
         outfile_date = "all"
     # Case 3.
     elif args.to_date is not None and args.from_date is not None:
         print(f"Running for range: {args.from_date} - {args.to_date}")
-        search_dirs = [d[1] for d in dates if d[0] >= args.from_date and d[0] <= args.to_date]
-        outfile_date = f"{args.from_date.strftime('%y%m%d')}-{args.to_date.strftime('%y%m%d')}"
+        search_dirs = [
+            d[1] for d in dates if d[0] >= args.from_date and d[0] <= args.to_date
+        ]
+        outfile_date = (
+            f"{args.from_date.strftime('%y%m%d')}-{args.to_date.strftime('%y%m%d')}"
+        )
     # Case 2.
     else:
         print(f"Running for single date: {args.date}")
         search_dirs = [d[1] for d in dates if d[0] == args.date]
-        outfile_date = args.date.strftime('%y%m%d')
-    
+        outfile_date = args.date.strftime("%y%m%d")
+
     # print("To search")
     # for d in search_dirs:
     #     print(d)
@@ -304,7 +307,9 @@ def main() -> None:
     # TODO: alternatively, store the entire `result` dict -> copying easier
     for ftype, headers in result.items():
         # Save using pickle
-        write_location = output_directory / f"{outfile_date}-{ftype.lower()}-headers.pickle"
+        write_location = (
+            output_directory / f"{outfile_date}-{ftype.lower()}-headers.pickle"
+        )
         print(f"Writing to {write_location}...")
         with open(write_location, "wb") as f:
             pickle.dump(headers, f)
@@ -346,16 +351,14 @@ def parse() -> argparse.Namespace:
         help="Specifies the end date of the (inclusive) range to search in (format YYMMDD). Also needs --from-date.",
     )
     parser.add_argument(
-            "--base",
-            type=str,
-            choices=list(BASE_DIR_MAP.keys()),
-            default="RAW_GBT",
-            help="Defined where the crawler will look for fits files.",
+        "--base",
+        type=str,
+        choices=list(BASE_DIR_MAP.keys()),
+        default="RAW_GBT",
+        help="Defined where the crawler will look for fits files.",
     )
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     main()
-
-

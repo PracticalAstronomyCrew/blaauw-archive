@@ -1,14 +1,15 @@
+from pathlib import Path
 from typing import Optional, Tuple
 
-from astropy.time import Time
-from blaauw.core import models
-from pathlib import Path
-
-from astropy.coordinates import AltAz, EarthLocation, SkyCoord
 import astropy.units as u
+from astropy.coordinates import SkyCoord
+
+from blaauw.core import models
 
 
-def imtyp_to_enum(imtyp: Optional[str] = None, filter: Optional[str] = None, obj: Optional[str] = None) -> Optional[models.ImageType]:
+def imtyp_to_enum(
+    imtyp: Optional[str] = None, filter: Optional[str] = None, obj: Optional[str] = None
+) -> Optional[models.ImageType]:
     """
     Attempts to derive the image type from the values in the header. The easiest case
     is when IMAGETYP is correctly set, but otherwise try to get it from information
@@ -22,7 +23,7 @@ def imtyp_to_enum(imtyp: Optional[str] = None, filter: Optional[str] = None, obj
         if imtyp.lower() in ("dark", "dark frame"):
             return models.ImageType.DARK
         if imtyp.lower() in ("light", "light frame"):
-            if filter is not None and filter.lower() == 'dark':
+            if filter is not None and filter.lower() == "dark":
                 # Special case where we took darks as light images with a 'Dark' filter
                 return models.ImageType.DARK
             return models.ImageType.LIGHT
@@ -44,7 +45,6 @@ def imtyp_to_enum(imtyp: Optional[str] = None, filter: Optional[str] = None, obj
             return models.ImageType.LIGHT
 
     return None
-
 
 
 def path_to_file_id(path: Path) -> Optional[str]:
@@ -72,10 +72,10 @@ def path_to_file_id(path: Path) -> Optional[str]:
     file_id_format = "{telescope}/{date}/{filename}"
 
     file_id = None
-    parents = p.parents
-    if models.ASTROM_GBT in parents or models.RAW_GBT in parents or models.PIPE_GBT in parents:
+    prnt = p.parents
+    if models.ASTROM_GBT in prnt or models.RAW_GBT in prnt or models.PIPE_GBT in prnt:
         file_id = file_id_format.format(telescope=tel, date=p.parts[7], filename=stem)
-    elif models.RAW_LDST in parents:
+    elif models.RAW_LDST in prnt:
         file_id = file_id_format.format(telescope=tel, date=p.parts[7], filename=stem)
 
     return file_id
@@ -99,6 +99,7 @@ def get_horizontal(header: dict) -> Tuple[Optional[float], Optional[float]]:
     except KeyError:
         return None, None
 
+
 def get_equitorial(header: dict) -> Tuple[Optional[float], Optional[float]]:
     """
     Extracts the equitorial coordinates from the header. If the file has a WCS, it will
@@ -109,8 +110,9 @@ def get_equitorial(header: dict) -> Tuple[Optional[float], Optional[float]]:
     if "CRVAL1" in header and "CRVAL2" in header:
         return header["CRVAL1"], header["CRVAL2"]
     elif "OBJCTRA" in header and "OBJCTDEC" in header:
-        coord: SkyCoord = SkyCoord(header["OBJCTRA"], header["OBJCTDEC"], unit=(u.hourangle, u.deg))
+        coord: SkyCoord = SkyCoord(
+            header["OBJCTRA"], header["OBJCTDEC"], unit=(u.hourangle, u.deg)
+        )
         return coord.ra.degree, coord.dec.degree
 
     return None, None
-
