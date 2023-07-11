@@ -144,7 +144,16 @@ How to use this query in another program (Python) is one of the examples in the 
       <description>Observation date and time in UTC.</description></column>
 
     <column name="filename" type="text" unit="" ucd="meta.id;meta.file">
-      <description>Absolute path to the corresponding fits file on the Vega data server.</description></column>
+      <description>
+        Absolute path to the corresponding FITS file. Will point to the most
+        detailed version of the file (i.e. to the WCS version if it is
+        available, raw version otherwise)
+      </description>
+    </column>
+    <column name="raw_filename" type="text" unit="" ucd="meta.id;meta.file">
+      <description>Absolute path to the corresponding FITS file on the Vega data server.</description></column>
+    <column name="wcs_filename" type="text" unit="" ucd="meta.id;meta.file">
+      <description>Absolute path to the corresponding FITS file with WCS information.</description></column>
 
     <column name="telescope" type="text" unit="" ucd="instr.tel">
       <description>The telescope which produced the observation, either: GBT (Gratema Bernoulli Telescope) or LDST (Lauwersmeer Dark Sky Telescope).</description></column>
@@ -152,7 +161,7 @@ How to use this query in another program (Python) is one of the examples in the 
       <description>Instrument / Detection which produced the observation.</description></column>
 
     <column name="image_type" type="text" unit="" ucd="meta.code;obs">
-      <description>The type of image, e.g. 'Light', 'Dark', 'Bias' or 'Flat'.</description></column>
+      <description>The type of image, e.g. 'LIGHT', 'DARK', 'BIAS' or 'FLAT'.</description></column>
 
     <column name="filter" type="text" unit="" ucd="meta.code;instr.filter">
       <description>The name of the filter used in the Observation.</description></column>
@@ -164,6 +173,9 @@ How to use this query in another program (Python) is one of the examples in the 
       <description>The binning of the CCD (typically 1).</description></column>
     <column name="airmass" type="double precision" unit="" ucd="obs.airmass">
       <description>Airmass of the observation</description></column>
+
+    <column name="has_wcs" type="smallint" unit="" ucd="">
+      <description>Boolean which indicates if the file has a valid WCS.</description></column>
 
     <column name="created_at" type="timestamp" unit="" ucd="time.creation">
       <description>Datetime on which the entry was first inserted into the database.</description></column>

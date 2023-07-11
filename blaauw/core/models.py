@@ -67,10 +67,14 @@ class Observation(Base):
     __tablename__ = "raw"
     id: Mapped[int] = mapped_column(primary_key=True)
     filename: Mapped[str] = mapped_column(unique=True)
+    raw_filename: Mapped[str] = mapped_column(unique=True)
+    # Maybe we don't need this if we have the raw_filename
     file_id: Mapped[str] = mapped_column(unique=True)
+
     date_obs: Mapped[datetime]
     date_obs_mjd: Mapped[float]
 
+    # Pointing information
     ra: Mapped[Optional[float]]
     dec: Mapped[Optional[float]]
     alt: Mapped[Optional[float]]
@@ -87,6 +91,10 @@ class Observation(Base):
     # instrument meta data
     telescope: Mapped[Telescope]
     instrument: Mapped[Optional[str]]
+
+    # WCS
+    has_wcs: Mapped[bool]
+    wcs_filename: Mapped[Optional[str]]
 
     # db metadata (automatic)
     created_at: Mapped[datetime] = mapped_column(
