@@ -17,14 +17,10 @@ class ImageType(enum.Enum):
 
 RAW_GBT = Path("/net/vega/data/users/observatory/images/")
 RAW_LDST = Path("/net/vega/data/users/observatory/LDST")
-ASTROM_GBT = Path("/net/dataserver3/data/users/noelstorr/blaauwastrom/")
-PIPE_GBT = Path("/net/dataserver3/data/users/noelstorr/blaauwpipe/")
 
 BASE_DIR_MAP = {
-    "RAW_GBT": RAW_GBT,
-    "RAW_LDST": RAW_LDST,
-    "ASTROM_GBT": ASTROM_GBT,
-    "PIPE_GBT": PIPE_GBT,
+    "GBT": RAW_GBT,
+    "LDST": RAW_LDST,
 }
 
 GBT_LOCATION = EarthLocation.from_geodetic(
@@ -42,7 +38,7 @@ class Telescope(enum.Enum):
     @classmethod
     def from_path(cls, path: Path):
         parents = path.parents
-        if RAW_GBT in parents or ASTROM_GBT in parents:
+        if RAW_GBT in parents:
             return cls.GBT
         if RAW_LDST in parents:
             return cls.LDST
@@ -67,9 +63,9 @@ class Observation(Base):
     __tablename__ = "raw"
     id: Mapped[int] = mapped_column(primary_key=True)
     filename: Mapped[str] = mapped_column(unique=True)
-    raw_filename: Mapped[str] = mapped_column(unique=True)
-    # Maybe we don't need this if we have the raw_filename
-    file_id: Mapped[str] = mapped_column(unique=True)
+    # we don't need this if we have the raw_filename
+    # raw_filename: Mapped[str] = mapped_column(unique=True)
+    # file_id: Mapped[str] = mapped_column(unique=True)
 
     date_obs: Mapped[datetime]
     date_obs_mjd: Mapped[float]
@@ -92,10 +88,6 @@ class Observation(Base):
     telescope: Mapped[Telescope]
     instrument: Mapped[Optional[str]]
 
-    # WCS
-    has_wcs: Mapped[bool]
-    wcs_filename: Mapped[Optional[str]]
-
     # db metadata (automatic)
     created_at: Mapped[datetime] = mapped_column(
         insert_default=func.CURRENT_TIMESTAMP()
@@ -105,4 +97,4 @@ class Observation(Base):
     )
 
     def __repr__(self) -> str:
-        return f"Observation(file_id={self.file_id}, date_obs='{self.date_obs}', image_type={self.image_type}, filter={self.filter}, telescope={self.telescope}, filename={self.filename.split('/')[-1]}, created_at='{self.created_at}', updated_at='{self.updated_at}')"
+        return f"Observation(date_obs='{self.date_obs}', image_type={self.image_type}, filter={self.filter}, telescope={self.telescope}, filename={self.filename.split('/')[-1]}, created_at='{self.created_at}', updated_at='{self.updated_at}')"

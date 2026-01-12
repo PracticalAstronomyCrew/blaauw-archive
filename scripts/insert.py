@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import enum
 import logging as log
 import pickle
 import socket
@@ -18,7 +19,7 @@ from blaauw.core import models, transformers
 RUNNING_SERVER = False
 
 
-def create_observation(header: dict) -> models.Observation:
+def create_observation_from_header(header: dict) -> models.Observation:
     """
     Given a header, creates an Observation out of it.
     """
@@ -35,17 +36,6 @@ def create_observation(header: dict) -> models.Observation:
     binning = xbin if xbin == ybin else None
     filename = Path(header["FILENAME"])
     telescope = models.Telescope.from_path(filename)
-    file_id = transformers.path_to_file_id(filename)
-
-    # Determine if it has WCS info
-    has_wcs = False
-    wcs_filename = None
-    raw_filename = filename
-    if models.ASTROM_GBT in filename.parents:
-        has_wcs = True
-        wcs_filename = filename
-        # We don't have this info directly, so need to query later
-        raw_filename = "QUERY"
 
     airmass = header.get("AIRMASS", None)
     ra, dec = transformers.get_equitorial(header)
@@ -65,9 +55,10 @@ def create_observation(header: dict) -> models.Observation:
     if exposure_time is None:
         exposure_time = header.get("EXPOSURE", None)
 
+    image_type = transformers.imtyp_to_enum(imtyp, filter=filter, obj=obj)
+
     obs = models.Observation(
         filename=str(filename),
-        file_id=file_id,
         date_obs=date.to_datetime(),
         date_obs_mjd=date.mjd,
         ra=ra,
@@ -75,40 +66,37 @@ def create_observation(header: dict) -> models.Observation:
         alt=alt,
         az=az,
         airmass=airmass,
-        image_type=transformers.imtyp_to_enum(imtyp, filter=filter, obj=obj),
+        image_type=image_type,
         filter=filter,
         target_object=obj,
         exposure_time=exposure_time,
         binning=binning,
         telescope=telescope,
         instrument=header.get("INSTRUME", None),
-        has_wcs=has_wcs,
-        raw_filename=str(raw_filename),
-        wcs_filename=str(wcs_filename),
     )
     return obs
 
 
-def checked_add(
-    observation: models.Observation, session: Session
-) -> Optional[models.Observation]:
-    """
-    If the observation (file_id) is not in the database, will add it to the
-    session and return None. When it is already in there, will not add it but
-    return it to be updated.
-    """
-    select_stmt = select(models.Observation).where(
-        models.Observation.file_id == observation.file_id
-    )
-    exists = session.scalars(select_stmt).first()
-    if exists is not None:
-        return observation
+# def checked_add(
+#     observation: models.Observation, session: Session
+# ) -> Optional[models.Observation]:
+#     """
+#     If the observation (filename) is not in the database, will add it to the
+#     session and return None. When it is already in there, will not add it but
+#     return it to be updated.
+#     """
+#     select_stmt = select(models.Observation).where(
+#         models.Observation.filename == observation.filename
+#     )
+#     exists = session.scalars(select_stmt).first()
+#     if exists is not None:
+#         return observation
+#
+#     session.add(observation)
+#     return None
 
-    session.add(observation)
-    return None
 
-
-# Is always the same
+# Create a reusable update statement, and determine which parameters to update
 _update_stmt = update(models.Observation)
 _update_params = set(_update_stmt.compile().params) - {
     "id",
@@ -117,46 +105,46 @@ _update_params = set(_update_stmt.compile().params) - {
 }
 
 
-def insert_observation(observation: models.Observation, session: Session) -> bool:
+class DBOperationEnum(enum.Enum):
+    INSERTED = "inserted"
+    UPDATED = "updated"
+
+
+def insert_observation(
+    observation: models.Observation, session: Session
+) -> DBOperationEnum:
     """
     Will insert the given `observation` in the databse (via the `session`). There will
     be two cases:
-        -
+        - The observation (filename) is not in the database yet: it will be added.
+        - The observation is already in the database: it will be updated with the
     """
     select_stmt = select(models.Observation).where(
-        models.Observation.file_id == observation.file_id
+        models.Observation.filename == observation.filename
     )
     existing_obs = session.scalars(select_stmt).first()
     if existing_obs is None:
         session.add(observation)
-        return True
-
-    # We already have an entry in there, so get the raw_filename and update
-    observation.raw_filename = existing_obs.raw_filename
-    # We log some warnings to see if stuff goes wrong
-    if existing_obs.has_wcs and not observation.has_wcs:
-        log.warning(
-            f"Updating existing element {existing_obs.filename} with element without WCS {observation.filename}"
-        )
-    if not existing_obs.has_wcs and not observation.has_wcs:
-        log.warning(
-            f"Potential duplicate entry: Updating existing element (no WCS) {existing_obs.filename} with element without WCS {observation.filename}"
-        )
+        return DBOperationEnum.INSERTED
 
     obs_update = _update_stmt.where(
-        models.Observation.file_id == observation.file_id
+        models.Observation.filename == observation.filename
     ).values({k: getattr(observation, k) for k in _update_params})
     session.execute(obs_update)
-    return False
+    return DBOperationEnum.UPDATED
 
 
 def insert_header_list(headers: List[dict], engine):
-    data = headers
+    """
+    Given a list of headers, will create Observation objects and insert them into the
+    database.
 
+    It will print some statistics on the number of inserted/updated observations.
+    """
     # Create all the observation objects
     observations = []
-    for header in data:
-        obs = create_observation(header)
+    for header in headers:
+        obs = create_observation_from_header(header)
         observations.append(obs)
 
     log.info(
@@ -175,8 +163,9 @@ def insert_header_list(headers: List[dict], engine):
             iterator = observations
 
         for obs in iterator:
-            inserted = insert_observation(obs, session)
-            num_inserted += 1 if inserted else 0
+            operation_done = insert_observation(obs, session)
+            if operation_done == DBOperationEnum.INSERTED:
+                num_inserted += 1
         session.commit()
 
     log.info(

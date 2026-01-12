@@ -12,11 +12,10 @@ from typing import Any, Dict, Iterable, List, Optional
 from astropy.io import fits
 from tqdm import tqdm
 
-from blaauw.core.models import BASE_DIR_MAP, PIPE_GBT  # loading bar
+from blaauw.core.models import BASE_DIR_MAP
 
 EXCLUDE_SET = {"COMMENT", "HISTORY"}
-PIPELINE_FILE_TYPES = {"Raw", "Reduced", "Correction"}
-BASE_DIR = "/net/dataserver3/data/users/noelstorr/blaauwpipe"
+BASE_DIR = BASE_DIR_MAP["GBT"]
 FITS_EXTENSIONS = {"FIT", "fit", "FITS", "fits"}
 
 HeaderDict = Dict[str, Any]
@@ -170,61 +169,26 @@ def collect(
     return headers, errors, duration
 
 
-def split_astrometry(iter: Iterable[str]):
-    # TODO: not used?
-    astrom_files = filter(
-        lambda f: f.endswith("astrom.fits") or f.endswith("astrom.FIT"),
-        iter,
-    )
-
-    raw_files = filter(
-        lambda f: not f.endswith("astrom.fits") and not f.endswith("astrom.FIT"),
-        iter,
-    )
-    return list(raw_files), list(astrom_files)
-
-
-def crawl(search_dirs: List[Path], pipeline=False) -> dict[str, List[HeaderDict]]:
+def crawl(search_dirs: List[Path]) -> dict[str, List[HeaderDict]]:
     result = {}
-    if pipeline:
-        for ftype in PIPELINE_FILE_TYPES:
-            # Seach for the files & collect into a list
-            files_iter = []
-            for search_dir in search_dirs:
-                files_iter.extend(search(search_dir, ftype))
-            headers, errors, duration = collect(files_iter, progress_desc=ftype)
+    # Seach for the files & collect into a list
+    files_iter = []
+    for search_dir in search_dirs:
+        files_iter.extend(search(search_dir))
+    headers, errors, duration = collect(files_iter, progress_desc="All")
 
-            # Store resulting headers
-            result[ftype] = headers
+    # Store resulting headers
+    result["Raw"] = headers
 
-            # Report
-            print("Took {}s".format(duration))
+    # Report
+    print("Took {}s".format(duration))
 
-            if len(errors) > 0:
-                print("")
-                print(f"{len(errors)} errors found:")
+    if len(errors) > 0:
+        print("")
+        print(f"{len(errors)} errors found:")
 
-            for filename, err in errors:
-                print(filename, "|", err)
-    else:
-        # Seach for the files & collect into a list
-        files_iter = []
-        for search_dir in search_dirs:
-            files_iter.extend(search(search_dir))
-        headers, errors, duration = collect(files_iter, progress_desc="All")
-
-        # Store resulting headers
-        result["Raw"] = headers
-
-        # Report
-        print("Took {}s".format(duration))
-
-        if len(errors) > 0:
-            print("")
-            print(f"{len(errors)} errors found:")
-
-        for filename, err in errors:
-            print(filename, "|", err)
+    for filename, err in errors:
+        print(filename, "|", err)
 
     return result
 
@@ -301,8 +265,7 @@ def main() -> None:
 
     total_time = process_time()
 
-    pipeline = PIPE_GBT == base_directory
-    result = crawl(search_dirs, pipeline)
+    result = crawl(search_dirs)
 
     # TODO: alternatively, store the entire `result` dict -> copying easier
     for ftype, headers in result.items():
@@ -333,7 +296,6 @@ def parse() -> argparse.Namespace:
         type=lambda s: dt.datetime.strptime(s, "%y%m%d").date(),
         help="If specified, will crawl the specific date (format YYMMDD). Default is yesterday.",
         default=dt.date.today() - dt.timedelta(days=1),
-        # TODO: add some default
     )
     parser.add_argument(
         "--all",
@@ -354,7 +316,7 @@ def parse() -> argparse.Namespace:
         "--base",
         type=str,
         choices=list(BASE_DIR_MAP.keys()),
-        default="RAW_GBT",
+        default="GBT",
         help="Defined where the crawler will look for fits files.",
     )
     return parser.parse_args()

@@ -73,7 +73,7 @@ def path_to_file_id(path: Path) -> Optional[str]:
 
     file_id = None
     prnt = p.parents
-    if models.ASTROM_GBT in prnt or models.RAW_GBT in prnt or models.PIPE_GBT in prnt:
+    if models.RAW_GBT in prnt:
         file_id = file_id_format.format(telescope=tel, date=p.parts[7], filename=stem)
     elif models.RAW_LDST in prnt:
         file_id = file_id_format.format(telescope=tel, date=p.parts[7], filename=stem)
@@ -86,7 +86,7 @@ def get_horizontal(header: dict) -> Tuple[Optional[float], Optional[float]]:
     Extracts the alt-az coordinates from the header. Will always be the values from the
     telescope itself.
 
-    If nothing is available will return None
+    If nothing is available will return None, None
     """
     try:
         # Already in degrees
@@ -105,7 +105,7 @@ def get_equitorial(header: dict) -> Tuple[Optional[float], Optional[float]]:
     Extracts the equitorial coordinates from the header. If the file has a WCS, it will
     use those coordinates, otherwise it will use the values from the telescope itself.
 
-    If nothing is available will return None
+    If nothing is available will return None, None
     """
     if "CRVAL1" in header and "CRVAL2" in header:
         return header["CRVAL1"], header["CRVAL2"]
