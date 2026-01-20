@@ -1,2 +1,29 @@
+# [build-system]
+# requires = ["setuptools"]
+# build-backend = "setuptools.build_meta"
+
+[project]
+name="blaauw"
+version="0.1.0"
+description="Blaauw archive database connection, tools and scripts"
+readme="README.md"
+# dependencies=["astropy", "requests"]
+requires-python=">= 3.8"
+authors = [
+    {name = "Sten Sipma", email="sipma@astro.rug.nl"},
+]
+keywords=["astronomy", "database", "client", "coordinates", "wcs", "api", "virtual observatory"]
+classifiers=[
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.8",
+    "Topic :: Scientific/Engineering :: Astronomy",
+    "Topic :: Scientific/Engineering :: Image Recognition",
+    "Natural Language :: English",
+]
+
+[project.urls]
+Repository = "https://github.com/PracticalAstronomyCrew/blaauw-archive"
+
 [tools.isort]
 profile = "black"
