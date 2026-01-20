@@ -127,8 +127,8 @@ How to use this query in another program (Python) is one of the examples in the 
   </meta>
 
   <table id="raw" onDisk="True" adql="True" mixin="//scs#pgs-pos-index">
-    <column name="file_id" type="text" unit="" ucd="meta.id;meta.file;meta.main">
-      <description>Combination of the folder date and file name to compare raw and processed files.</description></column>
+    <!-- <column name="file_id" type="text" unit="" ucd="meta.id;meta.file;meta.main"> -->
+    <!--   <description>Combination of the folder date and file name to compare raw and processed files.</description></column> -->
     <column name="ra" type="double precision" unit="deg"  ucd="pos.eq.ra;meta.main">
       <description>Right Ascention coordinate of where the telescope is pointed.</description></column>
     <column name="dec" type="double precision" unit="deg"  ucd="pos.eq.dec;meta.main">
@@ -150,10 +150,10 @@ How to use this query in another program (Python) is one of the examples in the 
         available, raw version otherwise)
       </description>
     </column>
-    <column name="raw_filename" type="text" unit="" ucd="meta.id;meta.file">
-      <description>Absolute path to the corresponding FITS file on the Vega data server.</description></column>
-    <column name="wcs_filename" type="text" unit="" ucd="meta.id;meta.file">
-      <description>Absolute path to the corresponding FITS file with WCS information.</description></column>
+    <!-- <column name="raw_filename" type="text" unit="" ucd="meta.id;meta.file"> -->
+    <!--   <description>Absolute path to the corresponding FITS file on the Vega data server.</description></column> -->
+    <!-- <column name="wcs_filename" type="text" unit="" ucd="meta.id;meta.file"> -->
+    <!--   <description>Absolute path to the corresponding FITS file with WCS information.</description></column> -->
 
     <column name="telescope" type="text" unit="" ucd="instr.tel">
       <description>The telescope which produced the observation, either: GBT (Gratema Bernoulli Telescope) or LDST (Lauwersmeer Dark Sky Telescope).</description></column>
@@ -174,8 +174,8 @@ How to use this query in another program (Python) is one of the examples in the 
     <column name="airmass" type="double precision" unit="" ucd="obs.airmass">
       <description>Airmass of the observation</description></column>
 
-    <column name="has_wcs" type="smallint" unit="" ucd="">
-      <description>Boolean which indicates if the file has a valid WCS.</description></column>
+    <!-- <column name="has_wcs" type="smallint" unit="" ucd=""> -->
+    <!--   <description>Boolean which indicates if the file has a valid WCS.</description></column> -->
 
     <column name="created_at" type="timestamp" unit="" ucd="time.creation">
       <description>Datetime on which the entry was first inserted into the database.</description></column>

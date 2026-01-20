@@ -279,5 +279,6 @@ if __name__ == "__main__":
         log.basicConfig(level=log.DEBUG)
     else:
         log.basicConfig(level=log.INFO)
-    RUNNING_SERVER = socket.gethostname() == "voserver.astro.rug.nl"
+
+    RUNNING_SERVER = socket.gethostname() == "voserver.vm.astro.rug.nl"
     main(args)
