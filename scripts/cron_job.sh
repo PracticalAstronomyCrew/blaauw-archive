@@ -4,7 +4,7 @@
 DATA_DIR=$HOME/cronjob-data
 BLAAUW_DIR=$HOME/blaauw-archive
 
-NOW=$(shell date +%Y%m%d-%H%M%S)
+# NOW=$(date +%Y%m%d-%H%M%S)
 
 YESTERDAY=$(date -d "`date`-2days" +%F) # YYYY-MM-DD
 
