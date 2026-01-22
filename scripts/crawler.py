@@ -20,6 +20,8 @@ FITS_EXTENSIONS = {"FIT", "fit", "FITS", "fits"}
 
 HeaderDict = Dict[str, Any]
 
+DATE_FORMAT = "%Y-%m-%d"
+
 
 def header_to_dict(filename: Path) -> HeaderDict:
     """
@@ -223,7 +225,7 @@ def main() -> None:
             continue
         date_str = match.groups()[-1]  # match the last group
         date_str = date_str.replace("-", "")
-        date = dt.datetime.strptime(date_str, "%y%m%d").date()  # format: YYMMDD
+        date = dt.datetime.strptime(date_str,DATE_FORMAT).date()  # format: YYMMDD
         # print(f"parsed: {date} from {child}")
         dates.append((date, child))
 
@@ -251,13 +253,13 @@ def main() -> None:
             d[1] for d in dates if d[0] >= args.from_date and d[0] <= args.to_date
         ]
         outfile_date = (
-            f"{args.from_date.strftime('%y%m%d')}-{args.to_date.strftime('%y%m%d')}"
+            f"{args.from_date.strftime(DATE_FORMAT)}-{args.to_date.strftime(DATE_FORMAT)}"
         )
     # Case 2.
     else:
         print(f"Running for single date: {args.date}")
         search_dirs = [d[1] for d in dates if d[0] == args.date]
-        outfile_date = args.date.strftime("%y%m%d")
+        outfile_date = args.date.strftime(DATE_FORMAT)
 
     # print("To search")
     # for d in search_dirs:
@@ -293,8 +295,8 @@ def parse() -> argparse.Namespace:
     )
     parser.add_argument(
         "--date",
-        type=lambda s: dt.datetime.strptime(s, "%Y-%m-%d").date(),
-        help="If specified, will crawl the specific date (format YYMMDD). Default is yesterday.",
+        type=lambda s: dt.datetime.strptime(s,DATE_FORMAT).date(),
+        help="If specified, will crawl the specific date (format YYYY-MM-DD). Default is yesterday.",
         default=dt.date.today() - dt.timedelta(days=1),
     )
     parser.add_argument(
@@ -304,13 +306,13 @@ def parse() -> argparse.Namespace:
     )
     parser.add_argument(
         "--from-date",
-        type=lambda s: dt.datetime.strptime(s, "%Y-%m-%d").date(),
-        help="Specifies the beginning date of the (inclusive) range to search in (format YYMMDD). Also needs an endpoint --to-date.",
+        type=lambda s: dt.datetime.strptime(s,DATE_FORMAT).date(),
+        help="Specifies the beginning date of the (inclusive) range to search in (format YYYY-MM-DD). Also needs an endpoint --to-date.",
     )
     parser.add_argument(
         "--to-date",
-        type=lambda s: dt.datetime.strptime(s, "%Y-%m-%d").date(),
-        help="Specifies the end date of the (inclusive) range to search in (format YYMMDD). Also needs --from-date.",
+        type=lambda s: dt.datetime.strptime(s,DATE_FORMAT).date(),
+        help="Specifies the end date of the (inclusive) range to search in (format YYYY-MM-DD). Also needs --from-date.",
     )
     parser.add_argument(
         "--base",
