@@ -3,21 +3,21 @@
 
 DATA_DIR=$HOME/cronjob-data
 BLAAUW_DIR=$HOME/blaauw-archive
+LOG_DIR=$HOME/cronjob-logs
 
-# NOW=$(date +%Y%m%d-%H%M%S)
+NOW=$(date +%Y%m%d-%H%M%S)
 
 YESTERDAY=$(date -d "`date`-1days" +%F) # YYYY-MM-DD
 
 GBT_FILE=$DATA_DIR/${YESTERDAY}-raw-headers.GBT.pickle
 
-echo "Crawling..."
-python3 $BLAAUW_DIR/scripts/crawler.py --output $DATA_DIR --date $YESTERDAY --base GBT
+LOG_FILE=$LOG_DIR/${NOW}-cronjob-gbt.log
 
-echo "Inserting"
-python3 $BLAAUW_DIR/scripts/insert.py --file $GBT_FILE
+echo "Crawling..." > $LOG_FILE
+python3 $BLAAUW_DIR/scripts/crawler.py --output $DATA_DIR --date $YESTERDAY --base GBT &>> $LOG_FILE
 
-echo "Removing"
+echo "Inserting" >> $LOG_FILE
+python3 $BLAAUW_DIR/scripts/insert.py --file $GBT_FILE &>> $LOG_FILE
+
+echo "Removing" >> $LOG_FILE
 rm $GBT_FILE
-
-# python3 $BLAAUW_DIR/scripts/crawler.py --output data/ --from-date 250101 --to-date 260101 --base GBT
-# LDST

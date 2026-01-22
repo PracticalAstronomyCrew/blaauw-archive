@@ -11,11 +11,13 @@ TODAY=$(date +%F) # YYYY-MM-DD
 
 LDST_FILE=$DATA_DIR/${LAST_MONTH}-${TODAY}-raw-headers.LDST.pickle
 
-echo "Crawling..."
-python3 $BLAAUW_DIR/scripts/crawler.py --output $DATA_DIR --from-date $LAST_MONTH --to-date $TODAY --base LDST
+LOG_FILE=$LOG_DIR/${NOW}-cronjob-ldst.log
 
-echo "Inserting"
-python3 $BLAAUW_DIR/scripts/insert.py --file $LDST_FILE
+echo "Crawling..." > $LOG_FILE
+python3 $BLAAUW_DIR/scripts/crawler.py --output $DATA_DIR --from-date $LAST_MONTH --to-date $TODAY --base LDST &>> $LOG_FILE
 
-echo "Removing"
+echo "Inserting" >> $LOG_FILE
+python3 $BLAAUW_DIR/scripts/insert.py --file $LDST_FILE &>> $LOG_FILE
+
+echo "Removing" >> $LOG_FILE
 rm $LDST_FILE
