@@ -6,7 +6,7 @@ BLAAUW_DIR=$HOME/blaauw-archive
 
 # NOW=$(date +%Y%m%d-%H%M%S)
 
-YESTERDAY=$(date -d "`date`-2days" +%F) # YYYY-MM-DD
+YESTERDAY=$(date -d "`date`-1days" +%F) # YYYY-MM-DD
 
 GBT_FILE=$DATA_DIR/${YESTERDAY}-raw-headers.GBT.pickle
 
