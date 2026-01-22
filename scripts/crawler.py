@@ -293,7 +293,7 @@ def parse() -> argparse.Namespace:
     )
     parser.add_argument(
         "--date",
-        type=lambda s: dt.datetime.strptime(s, "%y%m%d").date(),
+        type=lambda s: dt.datetime.strptime(s, "%Y-%m-%d").date(),
         help="If specified, will crawl the specific date (format YYMMDD). Default is yesterday.",
         default=dt.date.today() - dt.timedelta(days=1),
     )
@@ -304,12 +304,12 @@ def parse() -> argparse.Namespace:
     )
     parser.add_argument(
         "--from-date",
-        type=lambda s: dt.datetime.strptime(s, "%y%m%d").date(),
+        type=lambda s: dt.datetime.strptime(s, "%Y-%m-%d").date(),
         help="Specifies the beginning date of the (inclusive) range to search in (format YYMMDD). Also needs an endpoint --to-date.",
     )
     parser.add_argument(
         "--to-date",
-        type=lambda s: dt.datetime.strptime(s, "%y%m%d").date(),
+        type=lambda s: dt.datetime.strptime(s, "%Y-%m-%d").date(),
         help="Specifies the end date of the (inclusive) range to search in (format YYMMDD). Also needs --from-date.",
     )
     parser.add_argument(
