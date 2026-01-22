@@ -271,7 +271,7 @@ def main() -> None:
     for ftype, headers in result.items():
         # Save using pickle
         write_location = (
-            output_directory / f"{outfile_date}-{ftype.lower()}-headers.pickle"
+            output_directory / f"{outfile_date}-{ftype.lower()}-headers.{args.base}.pickle"
         )
         print(f"Writing to {write_location}...")
         with open(write_location, "wb") as f:
@@ -317,7 +317,7 @@ def parse() -> argparse.Namespace:
         type=str,
         choices=list(BASE_DIR_MAP.keys()),
         default="GBT",
-        help="Defined where the crawler will look for fits files.",
+        help="Defined where the crawler will look for fits files. (default = GBT)",
     )
     return parser.parse_args()
 
