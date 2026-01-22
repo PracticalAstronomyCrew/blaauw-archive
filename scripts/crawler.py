@@ -225,7 +225,7 @@ def main() -> None:
             continue
         date_str = match.groups()[-1]  # match the last group
         date_str = date_str.replace("-", "")
-        date = dt.datetime.strptime(date_str,DATE_FORMAT).date()  # format: YYMMDD
+        date = dt.datetime.strptime(date_str, "%y%m%d").date()  # format: YYMMDD
         # print(f"parsed: {date} from {child}")
         dates.append((date, child))
 
