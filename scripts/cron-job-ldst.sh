@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Python version 3.8 is located here
+PATH=/opt/dachs/bin:$PATH
 
 DATA_DIR=$HOME/cronjob-data
 BLAAUW_DIR=$HOME/blaauw-archive
